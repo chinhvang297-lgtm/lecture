@@ -1,0 +1,444 @@
+\documentclass[a4paper,8pt]{extarticle}
+
+% ── Packages ──
+\usepackage[margin=0.4cm]{geometry}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+
+% ── Colors ──
+\definecolor{secblue}{HTML}{1A5276}
+\definecolor{subsecblue}{HTML}{2980B9}
+\definecolor{boxbg}{HTML}{EBF5FB}
+\definecolor{defbg}{HTML}{FEF9E7}
+\definecolor{warnbg}{HTML}{FDEDEC}
+\definecolor{exbg}{HTML}{EAFAF1}
+\definecolor{framecol}{HTML}{AED6F1}
+\definecolor{defframe}{HTML}{F9E79F}
+\definecolor{warnframe}{HTML}{F5B7B1}
+\definecolor{exframe}{HTML}{A9DFBF}
+
+% ── Layout ──
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize\thepage}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1pt}
+\setlength{\columnsep}{6pt}
+
+% ── Section Formatting ──
+\titleformat{\section}
+  {\normalfont\bfseries\color{secblue}\large}{\thesection}{0.4em}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries\color{subsecblue}\normalsize}{\thesubsection}{0.3em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% ── List Settings ──
+\setlist{nosep, leftmargin=1.2em, topsep=1pt}
+
+% ── Box Styles ──
+\tcbset{
+  mybox/.style={
+    colback=#1, colframe=#1!80!black,
+    boxrule=0.4pt, arc=2pt, left=3pt, right=3pt, top=2pt, bottom=2pt,
+    fonttitle=\bfseries\small, before skip=2pt, after skip=2pt
+  }
+}
+
+\newtcolorbox{defbox}[1][]{mybox=defbg, colframe=defframe!80!black, title=#1}
+\newtcolorbox{infobox}[1][]{mybox=boxbg, colframe=framecol!80!black, title=#1}
+\newtcolorbox{warnbox}[1][]{mybox=warnbg, colframe=warnframe!80!black, title=#1}
+\newtcolorbox{exbox}[1][]{mybox=exbg, colframe=exframe!80!black, title=#1}
+
+% ══════════════════════════════════════════════════════════
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries\color{secblue} IEMS5726 Lecture 1A -- Cheat Sheet}\\[2pt]
+  {\small Data Science in Practice: Course Introduction}
+\end{center}
+\vspace{-4pt}
+\hrule height 0.8pt
+\vspace{4pt}
+
+\begin{multicols}{3}
+\raggedcolumns
+
+% ══════════════════════════════════════════════════════════
+\section{1. Key Terminology}
+% ══════════════════════════════════════════════════════════
+
+\subsection{1.1 Data-Related Terms}
+
+\begin{defbox}[Definitions]
+\begin{itemize}
+  \item \textbf{Database}: A collection of data that is well-organized and easily managed.
+  \item \textbf{Data Analysis}: A process of retrieving knowledge from data.
+  \item \textbf{Data Mining}: A process of extracting knowledge in \underline{large} data sets.
+  \item \textbf{Big Data}: A field that handles large and complex data sets.
+    \begin{itemize}[leftmargin=1em]
+      \item Challenges: storage, analysis, transfer, search, visualization, updating.
+    \end{itemize}
+\end{itemize}
+\end{defbox}
+
+\subsection{1.2 AI / ML / DL}
+
+\begin{infobox}[Relationship: AI $\supset$ ML $\supset$ DL]
+\begin{itemize}
+  \item \textbf{Artificial Intelligence (AI)}: Knowledge or behaviour demonstrated by machines.
+  \item \textbf{Machine Learning (ML)}: Computer algorithms that improve knowledge retrieval from data. \textit{A part of AI.}
+  \item \textbf{Deep Learning (DL)}: Use of multiple layers in the network to improve knowledge retrieval. \textit{A part of ML.}
+\end{itemize}
+\end{infobox}
+
+\subsection{1.3 Data Roles}
+
+\begin{defbox}[Three Data Roles]
+\begin{itemize}
+  \item \textbf{Data Scientist}: Transforms data to valuable \underline{insights and strategic decisions}.
+  \item \textbf{ML Engineer}: Turns data-driven models into \underline{practical applications}.
+  \item \textbf{Data Engineer}: Works on the foundation of a \underline{robust data infrastructure}.
+\end{itemize}
+\end{defbox}
+
+\subsection{1.4 Data Science}
+
+\begin{infobox}[What is Data Science?]
+Uses \textbf{scientific methods}, processes, algorithms, and systems to \textbf{extract knowledge and insights} from data across a broad range of application domains.
+
+\smallskip
+\textbf{Relevant disciplines:}
+\begin{itemize}
+  \item Computer Science -- database, data processing, programming
+  \item Informatics -- computation systems, knowledge extraction
+  \item Statistics -- interpretation of results
+  \item Other disciplines -- depend on problem definitions
+  \item Communication and Visualization
+\end{itemize}
+\end{infobox}
+
+% ══════════════════════════════════════════════════════════
+\section{2. Data Science Lifecycle}
+% ══════════════════════════════════════════════════════════
+
+\begin{warnbox}[5 Stages (Must Know!)]
+\begin{enumerate}
+  \item \textbf{Data Acquisition} -- collect/obtain data
+  \item \textbf{Data Cleaning \& Warehousing} -- fix errors, store properly
+  \item \textbf{Data Modeling \& Summarization} -- build models, summarize patterns
+  \item \textbf{Data Analysis} -- extract insights
+  \item \textbf{Data Visualization} -- present results with charts/graphs
+\end{enumerate}
+\end{warnbox}
+
+% ══════════════════════════════════════════════════════════
+\section{3. Types of Data Analytics}
+% ══════════════════════════════════════════════════════════
+
+\begin{defbox}[4 Types of Analytics]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Type} & \textbf{Core Question} \\
+\midrule
+\textbf{Predictive} & ``What \underline{might happen} in the future?'' \\
+\textbf{Descriptive} & ``What \underline{happened} / is happening?'' \\
+\textbf{Prescriptive} & ``What \underline{should we do} next?'' \\
+\textbf{Diagnostic} & ``\underline{Why} did this happen?'' \\
+\bottomrule
+\end{tabularx}
+\end{defbox}
+
+\begin{exbox}[Example: Ice-cream Shop]
+\begin{itemize}
+  \item \textbf{Predictive}: How much chocolate ice-cream will be needed \underline{tomorrow}?
+  \item \textbf{Descriptive}: What are the top flavours in the \underline{past week}?
+  \item \textbf{Prescriptive}: \underline{Should} we increase or reduce quality to make more money?
+  \item \textbf{Diagnostic}: \underline{Why} are chocolate and vanilla the best sellers?
+\end{itemize}
+\end{exbox}
+
+% ══════════════════════════════════════════════════════════
+\section{4. Importance of Data Science}
+% ══════════════════════════════════════════════════════════
+
+\begin{infobox}[5 Benefits]
+\begin{enumerate}
+  \item Cost efficient
+  \item Serves as a decision making tool
+  \item Helps to understand customer behaviour
+  \item Analyze and manage risks
+  \item Product development and innovations
+\end{enumerate}
+\end{infobox}
+
+% ══════════════════════════════════════════════════════════
+\section{5. Application Examples}
+% ══════════════════════════════════════════════════════════
+
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}c X l@{}}
+\toprule
+\textbf{\#} & \textbf{Application} & \textbf{Key Tech} \\
+\midrule
+1 & Handwritten Digit Recognition & ML / MNIST \\
+2 & Recommender Systems & Netflix Prize \\
+3 & Face Detection / Recognition & Microsoft Face API \\
+4 & Machine Translation & Google NMT \\
+5 & Face Generator & GAN \\
+6 & ChatGPT & NLP / LLM \\
+\bottomrule
+\end{tabularx}
+
+\smallskip
+\begin{itemize}
+  \item \textbf{MNIST}: Classic dataset of handwritten digits, one of the first widely used ML systems.
+  \item \textbf{Netflix Prize}: Competition to build movie recommender; winner: BellKor's Pragmatic Chaos.
+  \item \textbf{GAN}: Generative Adversarial Network -- generates fake but realistic images by learning features from existing images.
+  \item \textbf{ChatGPT}: NLP tool driven by AI; can have human-like conversations, compose emails/essays/code.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════
+\section{6. EU AI Act}
+% ══════════════════════════════════════════════════════════
+
+\begin{warnbox}[First Regulation on AI]
+\textbf{Goals:}
+\begin{itemize}
+  \item Ensure AI systems are \textbf{safe} and respect \textbf{fundamental rights}
+  \item Foster investment and innovation in AI
+  \item Enhance governance and enforcement
+  \item Encourage a single EU market for AI
+\end{itemize}
+\end{warnbox}
+
+\subsection{6.1 Risk Levels (EU AI Act)}
+
+\begin{defbox}[4 Risk Tiers]
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+\toprule
+\textbf{Level} & \textbf{Details} \\
+\midrule
+Unacceptable (Prohibited) &
+  \begin{itemize}[nosep,leftmargin=0.8em]
+    \item Voice toys encouraging dangerous behaviour in children
+    \item Biometric identification
+    \item Social scoring
+    \item Deceptive techniques
+    \item Facial recognition databases
+    \item Exception: law enforcement
+  \end{itemize} \\
+\midrule
+High (Conformity Assessment) &
+  \begin{itemize}[nosep,leftmargin=0.8em]
+    \item AI in cars, medical devices
+    \item AI in education, employment
+    \item AI for record-keeping
+  \end{itemize} \\
+\midrule
+Limited (Transparency) &
+  \begin{itemize}[nosep,leftmargin=0.8em]
+    \item ChatGPT, Deep Fakes, Chat bots
+    \item Must inform users they interact with AI
+  \end{itemize} \\
+\midrule
+Minimal (Code of Conduct) &
+  \begin{itemize}[nosep,leftmargin=0.8em]
+    \item AI video games, spam filters
+  \end{itemize} \\
+\bottomrule
+\end{tabularx}
+\end{defbox}
+
+\subsection{6.2 Risk Tier -- Regulatory Strategy}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\small}l X@{}}
+\toprule
+\textbf{Tier} & \textbf{Regulatory Strategy} \\
+\midrule
+Unacceptable & Full prohibition; legal liability \\
+High & Conformity assessments; human-in-the-loop; real-time monitoring \\
+Limited & Transparency obligations; user opt-out; annual audits \\
+Low & Self-certification \\
+\bottomrule
+\end{tabularx}
+
+% ══════════════════════════════════════════════════════════
+\section{7. HK Ethical AI Framework}
+% ══════════════════════════════════════════════════════════
+
+\begin{infobox}[Background]
+Issued by the \textbf{Digital Policy Office (DPO)} in \textbf{July 2024}. Internal adoption within HK Government for AI and big data analytics applications.
+\end{infobox}
+
+\subsection{7.1 Twelve Ethical AI Principles}
+
+\begin{defbox}[12 Principles]
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{Transparency \& Interpretability}: Decision processes explainable to humans.
+  \item \textbf{Reliability, Robustness \& Security}: Consistent results, handle errors, secure against cyber-attacks.
+  \item \textbf{Fairness}: No favouritism or discrimination; respect individuals behind data.
+  \item \textbf{Diversity \& Inclusion}: Respect interests of all stakeholders.
+  \item \textbf{Human Oversight}: Degree of human intervention dictated by severity of ethical issues.
+  \item \textbf{Lawfulness \& Compliance}: Act in accordance with law and regulations.
+  \item \textbf{Safety}: Must not compromise physical safety or mental integrity.
+  \item \textbf{Data Privacy}: Right to be informed of data collection purpose; data not kept longer than necessary; practicable steps to protect personal data.
+  \item \textbf{Accountability}: Clearly identifiable accountable party (individual or organisation).
+  \item \textbf{Beneficial AI}: Promote the common good.
+  \item \textbf{Cooperation \& Openness}: Multi-stakeholder open cooperation.
+  \item \textbf{Sustainability \& Just Transition}: Mitigation for societal and environmental impacts.
+\end{enumerate}
+\end{defbox}
+
+\subsection{7.2 AI Governance -- Lines of Defence}
+
+\begin{infobox}[Three Lines of Defence Model]
+A layered governance structure ensuring accountability at multiple levels within an organisation for AI systems.
+\end{infobox}
+
+\subsection{7.3 AI Lifecycle}
+
+\begin{exbox}[AI Lifecycle Overview]
+AI lifecycle aligned with \textbf{System Development Lifecycle (SDLC)}:
+\begin{itemize}
+  \item Project Request $\to$ System Analysis \& Design $\to$ Implementation $\to$ Maintenance
+\end{itemize}
+\end{exbox}
+
+\subsection{7.4 AI Impact Assessment Stages}
+
+\begin{infobox}[Key Stages]
+\begin{enumerate}
+  \item \textbf{Project Request}: Categorise project as high risk or not via ``Risk Gating Questions''.
+  \item \textbf{System Analysis/Design \& Implementation}: Conduct AI application impact assessment.
+  \item \textbf{System Maintenance}: Review and update assessment; escalate significant issues.
+\end{enumerate}
+\end{infobox}
+
+% ══════════════════════════════════════════════════════════
+\section{8. Mainland China AI Regulation}
+% ══════════════════════════════════════════════════════════
+
+\begin{defbox}[GenAI Governance in Mainland]
+\begin{itemize}
+  \item Issued the \textbf{``Global AI Governance Initiative''}.
+  \item \textbf{``Interim Measures for the Management of Generative AI Services''} effective \textbf{August 2023}.
+  \item Legal framework: \textbf{Cybersecurity Law}, \textbf{Data Security Law}, \textbf{Personal Information Protection Law}.
+\end{itemize}
+\end{defbox}
+
+% ══════════════════════════════════════════════════════════
+\section{9. Course Info (Quick Ref)}
+% ══════════════════════════════════════════════════════════
+
+\begin{infobox}[Assessment Breakdown]
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}X r@{}}
+\toprule
+\textbf{Component} & \textbf{Weight} \\
+\midrule
+UReply Attendance & 5\% \\
+4 Assignments & 35\% \\
+Course Project & 20\% \\
+Final Examination & 40\% \\
+\bottomrule
+\end{tabularx}
+\end{infobox}
+
+\begin{warnbox}[Fail Conditions]
+\begin{enumerate}
+  \item Final exam below 30\%
+  \item Grand total below 40\%
+  \item Not submitting the course project
+\end{enumerate}
+\end{warnbox}
+
+\begin{infobox}[GenAI Policy]
+\textbf{Approach 3}: Generative AI tools (ChatGPT, DeepSeek, Gemini) are \textbf{allowed} for coursework (not final exam). Must \textbf{clearly state} which part and how much AI was used.
+\end{infobox}
+
+\subsection{Course Approach}
+
+\begin{exbox}[What This Course Covers]
+Not just traditional ML introduction. Also focuses on:
+\begin{itemize}
+  \item Data collection \& preprocessing
+  \item Data representation
+  \item Data visualization
+  \item Problem-specific domains
+\end{itemize}
+
+\textbf{After this course you will:}
+\begin{itemize}
+  \item Work on common ML tasks
+  \item Pay attention to details in different problem domains
+  \item Visualize data at different stages
+  \item Understand neural representation of data
+\end{itemize}
+\end{exbox}
+
+% ══════════════════════════════════════════════════════════
+\section{10. Reference Books}
+% ══════════════════════════════════════════════════════════
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textit{Practical Statistics for Data Scientists} -- EDA, sampling, regression, classification, unsupervised learning
+  \item \textit{Python for Data Analysis} -- NumPy, Pandas, data wrangling, visualization
+  \item \textit{Introduction to ML with Python} -- supervised/unsupervised, features, model eval, pipelines
+  \item \textit{Data Science and Big Data Analytics} -- clustering, association rules, MapReduce, Hadoop
+  \item \textit{Deep Learning} (Goodfellow) -- neural nets, CNN, RNN, generative models
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════
+\section{11. Python Environment}
+% ══════════════════════════════════════════════════════════
+
+\begin{defbox}[Python Basics]
+\begin{itemize}
+  \item High-level interpreted programming language
+  \item Created by \textbf{Guido van Rossum} in \textbf{1991}
+  \item Emphasizes code readability and flexibility
+  \item Current version: \textbf{Python 3.13}
+  \item All assignments graded under \textbf{Anaconda Python 3.13}
+  \item Recommended IDE: \textbf{VS Code}
+\end{itemize}
+\end{defbox}
+
+\begin{infobox}[Python Use Cases]
+\begin{itemize}
+  \item Web backend (YouTube, Dropbox, Reddit)
+  \item Scientific computing
+  \item Data Science \& ML (PyTorch)
+  \item Data visualization
+  \item Financial analysis
+\end{itemize}
+\end{infobox}
+
+\begin{exbox}[Anaconda Advantages]
+\begin{enumerate}
+  \item Free, open-source
+  \item 1500+ data science packages
+  \item Simplifies package management \& deployment
+  \item Ongoing development \& maintenance
+\end{enumerate}
+\end{exbox}
+
+\vfill
+\begin{center}
+\footnotesize\color{gray} IEMS5726 Lecture 1A Cheat Sheet | Data Science in Practice | 2025--26
+\end{center}
+
+\end{multicols}
+\end{document}
