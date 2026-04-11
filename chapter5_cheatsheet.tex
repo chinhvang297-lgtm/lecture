@@ -1,0 +1,421 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+    {\large\bfseries IERG4320/IEMS5726 --- Chapter 5: Data Representation III --- Cheat Sheet}\\[2pt]
+    {\small Prof.\ YAN Wenjing, Dr.\ Danny Yip \quad|\quad Department of Information Engineering, CUHK}
+\end{center}
+
+\vspace{2pt}
+\begin{multicols}{3}
+
+% ============================================================
+\section{Artificial Neural Network \zhint{(ANN/NN)}}
+% ============================================================
+
+\zhint{受人脑启发的计算模型，由神经元(节点)组成，能学习非线性关系。}
+
+\subsection{Neuron \zhint{(神经元)}}
+\zhint{基本单元：每个输入乘以权重，加起来，再过一个激活函数f。}\\
+$\text{output} = f\!\Big(\sum_i w_i x_i + b\Big)$
+
+\subsection{Activation Functions \zhint{(激活函数)}}
+\zhint{非线性函数，让NN能学非线性关系。常见：ReLU, Sigmoid, Tanh}
+
+\subsection{Feed-forward NN \zhint{(前馈神经网络)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{Input nodes} \zhint{(输入层)}: pass data in, no computation
+    \item \textbf{Hidden nodes} \zhint{(隐藏层)}: do computation
+    \item \textbf{Output nodes} \zhint{(输出层)}: produce final result
+\end{itemize}
+\zhint{MLP = 有1+个隐藏层的NN = 全连接网络（每个节点连下一层所有节点）}
+
+\subsection{Key Parameters \zhint{(关键参数)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \# layers, \# nodes per layer \zhint{(层数、每层节点数)}
+    \item Activation function \zhint{(激活函数)}
+    \item Optimizer \zhint{(优化器，如SGD/Adam)}
+    \item Learning rate \zhint{(学习率，控制步长)}
+    \item Batch size \zhint{(每次喂多少数据)}
+    \item Epoch \zhint{(整个数据集过几遍)}
+\end{itemize}
+
+\subsection{Loss Function \zhint{(损失函数)}}
+\zhint{衡量预测和真实值的差距。分类常用Log Loss：}
+$\text{LogLoss} = -\frac{1}{N}\sum_{i=1}^{N}\sum_{c=1}^{C} y_{ic}\log(p_{ic})$\\
+\zhint{N=样本数, C=类别数, $y_{ic}$=是否属于类c, $p_{ic}$=预测概率}
+
+\subsection{Training Steps \zhint{(训练步骤)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Pick architecture \zhint{(选网络结构)}
+    \item Random init weights \zhint{(随机初始化权重)}
+    \item Forward propagation \zhint{(前向传播：输入$\to$预测)}
+    \item Compute loss \zhint{(算损失)}
+    \item Backpropagation \zhint{(反向传播：算梯度)}
+    \item Gradient descent \zhint{(梯度下降：更新权重)}
+    \item Repeat until converge \zhint{(重复直到收敛)}
+\end{enumerate}
+
+\subsection{Simple ANN in PyTorch \zhint{(代码)}}
+\begin{lstlisting}
+import torch
+import torch.nn as nn
+n_input, n_hidden, n_out = 10, 15, 1
+batch_size, lr = 100, 0.01
+# Random dummy data
+data_x = torch.randn(batch_size, n_input)
+data_y = (torch.rand(batch_size, 1) < 0.5).float()
+
+# Define model
+model = nn.Sequential(
+    nn.Linear(n_input, n_hidden), nn.ReLU(),
+    nn.Linear(n_hidden, n_out), nn.Sigmoid())
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.SGD(
+    model.parameters(), lr=lr)
+\end{lstlisting}
+
+\subsection{Training Loop \zhint{(训练循环)}}
+\begin{lstlisting}
+losses = []
+for epoch in range(50000):
+    pred_y = model(data_x)      # Forward
+    loss = loss_fn(pred_y, data_y)
+    losses.append(loss.item())
+    model.zero_grad()
+    loss.backward()              # Backward
+    optimizer.step()             # Update
+# Plot loss curve
+import matplotlib.pyplot as plt
+plt.plot(losses); plt.ylabel('loss')
+plt.xlabel('epoch'); plt.show()
+\end{lstlisting}
+
+\subsection{ANN Limitations \zhint{(ANN局限)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Prone to overfitting \zhint{(容易过拟合)}
+    \item Sensitive to outliers \zhint{(对异常值敏感)}
+    \item Data-driven, needs lots of data \zhint{(依赖大量数据)}
+    \item Issues with imbalanced classes \zhint{(类别不平衡时有问题)}
+\end{itemize}
+
+% ============================================================
+\section{Autoencoder \zhint{(自编码器)}}
+% ============================================================
+
+\zhint{无监督NN，输入=输出。目标是学到一个压缩的中间表示（latent space）。}
+
+\keybox{
+\zhint{Encoder: 高维输入 $\to$ 低维编码（压缩）}\\
+\zhint{Bottleneck: 最小的中间层（潜在空间）}\\
+\zhint{Decoder: 低维编码 $\to$ 重建原始输入（解压缩）}\\
+\zhint{类比：PCA的非线性版本}
+}
+
+\subsection{Use Cases \zhint{(应用场景)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Data compression \zhint{(数据压缩)}
+    \item Denoising \zhint{(去噪)}
+    \item Anomaly detection \zhint{(异常检测)}
+    \item Visualization \zhint{(降维可视化)}
+    \item Feature engineering \zhint{(特征提取)}
+    \item Generation (VAE) \zhint{(数据生成，如DALL-E)}
+\end{itemize}
+
+\subsection{MNIST Autoencoder Code \zhint{(完整代码)}}
+
+\begin{lstlisting}
+# Load MNIST dataset
+import torch
+from torch import nn, optim
+from torchvision import datasets, transforms
+transform = transforms.ToTensor()
+dataset = datasets.MNIST(root="./data",
+    train=True, download=True,
+    transform=transform)
+loader = torch.utils.data.DataLoader(
+    dataset=dataset, batch_size=32, shuffle=True)
+\end{lstlisting}
+
+\begin{lstlisting}
+# Define Autoencoder
+class AE(nn.Module):
+    def __init__(self):
+        super(AE, self).__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(28*28, 128), nn.ReLU(),
+            nn.Linear(128, 64),   nn.ReLU(),
+            nn.Linear(64, 36),    nn.ReLU(),
+            nn.Linear(36, 18),    nn.ReLU(),
+            nn.Linear(18, 9))     # bottleneck=9
+        self.decoder = nn.Sequential(
+            nn.Linear(9, 18),     nn.ReLU(),
+            nn.Linear(18, 36),    nn.ReLU(),
+            nn.Linear(36, 64),    nn.ReLU(),
+            nn.Linear(64, 128),   nn.ReLU(),
+            nn.Linear(128, 28*28),nn.Sigmoid())
+    def forward(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded, encoded
+\end{lstlisting}
+\zhint{encoder: 784$\to$128$\to$64$\to$36$\to$18$\to$9（压缩）}\\
+\zhint{decoder: 9$\to$18$\to$36$\to$64$\to$128$\to$784（还原）}
+
+\begin{lstlisting}
+# Train Autoencoder
+model = AE()
+loss_fn = nn.MSELoss()  # reconstruction loss
+optimizer = optim.Adam(model.parameters(),
+    lr=1e-3, weight_decay=1e-8)
+device = torch.device(
+    "cuda" if torch.cuda.is_available()
+    else "cpu")
+model.to(device)
+for epoch in range(20):
+    for images, _ in loader:
+        images = images.view(-1, 28*28).to(device)
+        reconstructed = model(images)[0]
+        loss = loss_fn(reconstructed, images)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    print(f"Epoch {epoch+1}/20, "
+          f"Loss: {loss.item():.6f}")
+\end{lstlisting}
+\zhint{MSE Loss = 原图和重建图的像素差平方和}
+
+\subsection{Latent Space Size \zhint{(怎么定bottleneck大小？)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Domain knowledge \zhint{(领域知识，如MNIST用9或10)}
+    \item Progressive reduction \zhint{(试：调大调小看效果)}
+    \item PCA variance analysis \zhint{(用PCA的方差比估计)}
+    \item Rule of thumb: $2^n$ for images \zhint{(经验法则)}
+\end{enumerate}
+
+\subsection{Limitations \zhint{(局限)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Needs enough training data \zhint{(数据不够学不好)}
+    \item Lossy compression \zhint{(压缩有损，信息丢失)}
+    \item Hard to choose bottleneck size \zhint{(中间层大小难定)}
+    \item Imperfect reconstruction \zhint{(还原不完美)}
+\end{itemize}
+
+% ============================================================
+\section{Transformer \zhint{(变换器)}}
+% ============================================================
+
+\zhint{2017年Google提出（"Attention Is All You Need"），专门处理序列数据（文本等），核心是自注意力机制。}
+
+\subsection{Autoencoder vs Transformer}
+\begin{center}
+\scriptsize
+\begin{tabular}{lp{2.1cm}p{2.2cm}}
+\toprule
+ & \textbf{Autoencoder} & \textbf{Transformer} \\
+\midrule
+Purpose & Unsupervised \zhint{(压缩)} & Seq model \zhint{(序列)} \\
+Core & Bottleneck \zhint{(瓶颈层)} & Self-attention \zhint{(自注意力)} \\
+Input & Static \zhint{(图片等)} & Sequential \zhint{(文本等)} \\
+Output & Reconstruction \zhint{(重建)} & Generation \zhint{(翻译/摘要)} \\
+Focus & Data itself \zhint{(数据)} & Context \zhint{(上下文关系)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Architecture \zhint{(结构)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{Encoder} (left): 6 layers of self-attention + FFN\\
+    \zhint{每层：自注意力 + 前馈网络}
+    \item \textbf{Decoder} (right): 6 layers of self-attn + cross-attn + FFN\\
+    \zhint{每层：自注意力 + 编码器-解码器注意力 + 前馈网络}
+\end{itemize}
+
+\subsection{Key Concepts \zhint{(核心概念)}}
+
+\textbf{1. Positional Encoding} \zhint{(位置编码)}\\
+\zhint{Transformer不像RNN有顺序，所以要给每个词加位置信息。}\\
+\zhint{位置向量 + 词向量 = 最终输入}
+
+\textbf{2. Self-Attention} \zhint{(自注意力)}\\
+\zhint{让每个词都能"看到"句子中所有其他词，计算它们的相关性。}\\
+\zhint{Q(Query) $\times$ K(Key) = 权重 $\to$ 加权求和V(Value)}\\
+\zhint{"bank"旁边是"river"和"account"时会学到不同含义。}
+
+\textbf{3. Cross-Attention} \zhint{(交叉注意力)}\\
+\zhint{解码器查看编码器的输出，Q来自解码器，K/V来自编码器。}
+
+\textbf{4. Multi-Head Attention} \zhint{(多头注意力)}\\
+\zhint{同时用多组Q/K/V，从不同角度捕捉关系。}
+
+\subsection{Data Flow \zhint{(数据流转)}}
+\keybox{
+\zhint{Words $\to$ Token IDs (整数) $\to$ Token Embeddings (向量) $\to$ + Positional Encoding $\to$ Self-Attention $\to$ Contextualized Embeddings}\\
+\zhint{最终每个词变成一个蕴含上下文信息的向量。}
+}
+
+\subsection{Use Pre-trained Model! \zhint{(用预训练模型！)}}
+\zhint{从头训练非常贵（BERT训练3B词花8天TPU v3）。}\\
+\zhint{微调(fine-tune)只需2--3小时。所以一定要用预训练模型。}
+
+\begin{lstlisting}
+import transformers
+name = "bert-base-uncased"
+tokenizer = transformers.AutoTokenizer \
+    .from_pretrained(name)
+transformer = transformers.AutoModel \
+    .from_pretrained(name)
+\end{lstlisting}
+
+\subsection{Transformer Class \zhint{(分类模型)}}
+\begin{lstlisting}
+class Transformer(nn.Module):
+    def __init__(self, transformer,
+                 output_dim, freeze):
+        super().__init__()
+        self.transformer = transformer
+        hidden = transformer.config.hidden_size
+        self.fc = nn.Linear(hidden, output_dim)
+        if freeze:  # freeze pre-trained weights
+            for p in self.transformer.parameters():
+                p.requires_grad = False
+    def forward(self, ids):
+        output = self.transformer(
+            ids, output_attentions=True)
+        hidden = output.last_hidden_state
+        attention = output.attentions[-1]
+        cls_hidden = hidden[:, 0, :]  # [CLS]
+        prediction = self.fc(
+            torch.tanh(cls_hidden))
+        return prediction
+\end{lstlisting}
+\zhint{hidden[:,0,:] = [CLS] token的向量，代表整句话的含义}
+
+\subsection{BERT Embeddings \zhint{(提取BERT嵌入)}}
+\begin{lstlisting}
+from transformers import (
+    BertTokenizer, BertModel)
+tokenizer = BertTokenizer.from_pretrained(
+    'bert-base-uncased')
+model = BertModel.from_pretrained(
+    'bert-base-uncased')
+model.eval()
+text = "Hello, how are you?"
+inputs = tokenizer(text, return_tensors='pt')
+with torch.no_grad():
+    outputs = model(**inputs)
+# Contextualized embeddings
+last_hidden = outputs.last_hidden_state
+# Shape: (1, seq_len, 768)
+\end{lstlisting}
+\zhint{每个token变成768维向量，包含上下文信息}
+
+\subsection{Transformer Limitations \zhint{(局限)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Very expensive to train \zhint{(训练超费钱)}
+    \item Needs good pre-trained model \zhint{(依赖预训练模型质量)}
+    \item Sequence length limits \zhint{(输入长度有上限)}
+    \item Slow generation \zhint{(生成速度慢)}
+\end{itemize}
+
+% ============================================================
+\section{Google Colab \zhint{(谷歌Colab)}}
+% ============================================================
+
+\zhint{免费在线Jupyter Notebook，可用GPU/TPU，适合跑深度学习。}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Free GPU/TPU access \zhint{(免费GPU)}
+    \item Pre-installed: PyTorch, TF, Pandas \zhint{(常用库已装好)}
+    \item Save to Google Drive \zhint{(存到云盘)}
+    \item Runtime $\to$ Change runtime type $\to$ GPU \zhint{(切换GPU)}
+\end{itemize}
+
+% ============================================================
+\section{Quick Reference \zhint{(速查总结)}}
+% ============================================================
+
+\begin{center}
+\scriptsize
+\begin{tabular}{lp{4.5cm}}
+\toprule
+\textbf{Topic} & \textbf{Key Point} \\
+\midrule
+ANN & \texttt{nn.Sequential(Linear, ReLU, ...)} \zhint{(搭积木)} \\
+Training & Forward $\to$ Loss $\to$ Backward $\to$ Step \zhint{(四步循环)} \\
+Autoencoder & Encoder$\to$Bottleneck$\to$Decoder \zhint{(压缩再还原)} \\
+Latent space & \zhint{encoded = model.encoder(x) 提取} \\
+Transformer & Self-attention on sequences \zhint{(序列自注意力)} \\
+Pre-trained & \texttt{AutoModel.from\_pretrained()} \zhint{(用预训练!)} \\
+BERT embed & \texttt{outputs.last\_hidden\_state} \zhint{(提取嵌入)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\keybox{
+\zhint{核心思路：ANN能学非线性关系 $\to$ Autoencoder用ANN做无监督压缩 $\to$ Transformer用注意力机制理解序列上下文。现在都用预训练模型微调！}
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}
