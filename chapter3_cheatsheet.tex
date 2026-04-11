@@ -1,0 +1,522 @@
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.8cm, bottom=0.8cm, left=0.8cm, right=0.8cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlength{\columnsep}{8pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=3pt,
+    belowskip=3pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+% Custom box for key concepts
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+% Chinese hint style (gray, smaller)
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+    {\large\bfseries IERG4320/IEMS5726 --- Chapter 3: Data Representation I --- Cheat Sheet}\\[2pt]
+    {\small Prof.\ YAN Wenjing, Dr.\ Danny Yip \quad|\quad Department of Information Engineering, CUHK}
+\end{center}
+
+\vspace{2pt}
+\begin{multicols}{3}
+
+% ============================================================
+\section{Data Preprocessing \zhint{(数据预处理)}}
+% ============================================================
+
+\zhint{在使用数据之前先把数据整理干净，让模型能更好地学习。}
+
+\subsection{Why? \zhint{(为什么要预处理？)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Accuracy \zhint{(准确性：数据对不对？)}
+    \item Completeness \zhint{(完整性：有没有缺失？)}
+    \item Consistency \zhint{(一致性：各处数据是否矛盾？)}
+    \item Timeliness \zhint{(时效性：数据是否过时？)}
+    \item Believability \zhint{(可信度：数据可靠吗？)}
+    \item Interpretability \zhint{(可理解性：能不能看懂？)}
+\end{itemize}
+
+\subsection{4 Goals \zhint{(四大目标)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{Data Cleaning} \zhint{(清洗)}: fix/remove wrong, duplicate, incomplete data
+    \item \textbf{Data Integration} \zhint{(整合)}: merge data from multiple sources
+    \item \textbf{Data Reduction} \zhint{(降维)}: reduce data size while keeping info
+    \item \textbf{Data Transformation} \zhint{(转换)}: change format/structure/values
+\end{enumerate}
+
+\subsection{Data Wrangling Steps \zhint{(数据整理六步)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Discovering \zhint{(了解数据长什么样)}
+    \item Structuring \zhint{(组织原始数据)}
+    \item Cleaning \zhint{(统一格式、去掉异常值)}
+    \item Enriching \zhint{(能不能补充更多数据？)}
+    \item Validating \zhint{(检查质量和一致性)}
+    \item Publishing \zhint{(准备好给下游使用)}
+\end{enumerate}
+
+\subsection{Preprocessing Pipeline \zhint{(预处理流程)}}
+\keybox{
+\zhint{加载数据 $\to$ 数据整理 $\to$ 处理缺失值 $\to$ 处理分类变量 $\to$ 去重 $\to$ 划分训练/验证/测试集 $\to$ 归一化 $\to$ (可选)特征选择}
+}
+
+% ============================================================
+\section{Train/Val/Test Split \zhint{(数据集划分)}}
+% ============================================================
+
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Training set} \zhint{(训练集)}: train the model \zhint{(用来训练模型)}
+    \item \textbf{Validation set} \zhint{(验证集)}: tune hyperparams \zhint{(调参、选模型)}
+    \item \textbf{Testing set} \zhint{(测试集)}: final evaluation \zhint{(最终评估，只用一次)}
+\end{itemize}
+
+\begin{lstlisting}
+from sklearn.model_selection import train_test_split
+# First split: 80% train+val, 20% test
+X_1, X_test, y_1, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=0)
+# Second split: 80% train, 20% val
+X_train, X_val, y_train, y_val = train_test_split(
+    X_1, y_1, test_size=0.2, random_state=0)
+\end{lstlisting}
+
+\subsection{Cross Validation \zhint{(交叉验证)}}
+\zhint{把数据分成k份，轮流用其中1份做验证，其余做训练，重复k次取平均。}\\
+\zhint{目的：更可靠地评估模型效果，避免"运气好"。}
+
+\textbf{Model selection example} \zhint{(选模型技巧)}:\\
+\zhint{选CV和Test表现都不错且差距小的模型（如M3/M4），不选差距太大的（如M1/M2）。}
+
+% ============================================================
+\section{Data Imputation \zhint{(缺失值填补)}}
+% ============================================================
+
+\zhint{数据缺失很常见（漏填、拒绝回答、设备故障等），不能直接扔掉，要想办法填上。}
+
+\subsection{Types of Missingness \zhint{(缺失类型)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{MCAR} \zhint{(完全随机缺失)}: missing by pure chance\\
+    \zhint{像随机在数据上挖洞，跟数据本身无关}
+    \item \textbf{MAR} \zhint{(随机缺失)}: depends on other observed variables\\
+    \zhint{缺失跟其他已知变量有关，如性别影响是否回答某问题}
+    \item \textbf{MNAR} \zhint{(非随机缺失)}: depends on the missing value itself\\
+    \zhint{缺失跟缺的值本身有关，如作弊的人不回答"你作弊过吗"}
+\end{itemize}
+
+\subsection{Method 1: Deletion \zhint{(删除法)}}
+\begin{lstlisting}
+# Drop rows by index
+df.drop([0, 1])
+# Drop columns by name
+df.drop(columns=['A','B'], axis=1)
+# Drop any row with NaN
+df.dropna()
+\end{lstlisting}
+\zhint{简单粗暴，但会丢失信息。}
+
+\subsection{Method 2: Mean/Median/Mode \zhint{(均值/中位数/众数填补)}}
+\begin{lstlisting}
+import numpy as np
+from scipy import stats
+# Fill with mean
+df.replace({'D': np.nan}, np.mean(df['D']))
+# Fill with median
+df.replace({'B': np.nan},
+    np.nanmedian(df['B']))
+# Fill with mode
+df.replace({'D': np.nan},
+    stats.mode(df['D'])[0][0])
+\end{lstlisting}
+
+\subsection{Method 3: Regression \zhint{(回归填补)}}
+\zhint{用其他列建回归模型来预测缺失值。}
+\begin{lstlisting}
+from sklearn import linear_model
+df_train = df.dropna()
+X = df_train.drop(columns=['D'])
+regr = linear_model.LinearRegression()
+regr.fit(X, df_train['D'])
+regr.predict(df.drop(columns=['D']))
+\end{lstlisting}
+\zhint{注意：可能引入变量间额外依赖关系。}
+
+\subsection{Method 4: Hot Deck \zhint{(热卡填补)}}
+\zhint{用同一列中最近的有效值来填充（向前填充）。}
+\begin{lstlisting}
+# Forward fill: use last valid value
+df.ffill(inplace=True)
+\end{lstlisting}
+
+\subsection{Method 5: Multiple Imputation \zhint{(多重填补)}}
+\zhint{最精确的方法：建多个模型，综合分析不确定性。}
+\begin{lstlisting}
+from sklearn.experimental import (
+    enable_iterative_imputer)
+from sklearn.impute import IterativeImputer
+imp = IterativeImputer(
+    max_iter=10, random_state=0)
+imp.fit([[1,2],[3,6],[4,8],
+         [np.nan,3],[7,np.nan]])
+X_test = [[np.nan,2],[6,np.nan],[np.nan,6]]
+print(np.round(imp.transform(X_test)))
+# [[ 1.  2.] [ 6. 12.] [ 3.  6.]]
+\end{lstlisting}
+\zhint{模型学到第二列是第一列的2倍，自动补全。}
+
+\subsection{sklearn Imputers \zhint{(sklearn填补工具)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \texttt{SimpleImputer} \zhint{(均值/中位数/众数/固定值)}
+    \item \texttt{IterativeImputer} \zhint{(迭代回归，多变量)}
+    \item \texttt{KNNImputer} \zhint{(用K近邻来填补)}
+    \item \texttt{MissingIndicator} \zhint{(标记哪里缺失)}
+\end{itemize}
+
+\subsection{Guidelines (Harrell 2001) \zhint{(实用指南)}}
+\begin{center}
+\scriptsize
+\begin{tabular}{lp{4.5cm}}
+\toprule
+\textbf{Missing \%} & \textbf{Strategy} \zhint{(怎么处理)} \\
+\midrule
+$\leq$ 5\% & Median/Mode \zhint{(简单填就行)} \\
+5--15\% & Multiple imputation if correlated \zhint{(看情况)} \\
+15--30\% & Multiple imputation \zhint{(必须用多重填补)} \\
+$>$ 30\% & Consider dropping the variable \zhint{(缺太多，考虑删)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ============================================================
+\section{Categorical Variables \zhint{(分类变量处理)}}
+% ============================================================
+
+\zhint{机器学习需要数字输入，所以要把文字类别转成数字。}
+
+\subsection{Label Encoding \zhint{(标签编码)}}
+\zhint{把每个类别映射成一个数字。如 male$\to$1, female$\to$0}
+\begin{lstlisting}
+from sklearn import preprocessing
+le = preprocessing.LabelEncoder()
+df['A'] = le.fit_transform(df['A'])
+df['A'].unique()
+\end{lstlisting}
+
+\subsection{Binning \zhint{(分箱/分桶)}}
+\zhint{把连续值分成几个区间。如 age: 0--17$\to$0, 18--64$\to$1, 65+$\to$2}
+\begin{lstlisting}
+bins = [0, 17, 64, np.inf]
+names = [0, 1, 2]
+df['ageRange'] = pd.cut(
+    df['age'], bins, labels=names)
+\end{lstlisting}
+
+\subsection{Ordinal Encoding \zhint{(有序编码)}}
+\zhint{类别有大小关系时使用。如 red$\to$1, green$\to$2, blue$\to$3}
+\begin{lstlisting}
+df.name = pd.Categorical(df['name'])
+df['code'] = df.name.cat.codes
+\end{lstlisting}
+
+\subsection{One-Hot Encoding \zhint{(独热编码)}}
+\zhint{每个类别变成一列0/1。red$\to$\{1,0,0\}, green$\to$\{0,1,0\}, blue$\to$\{0,0,1\}}\\
+\textbf{Dummy encoding} \zhint{(哑变量)}: drop one column to avoid redundancy.\\
+\zhint{red$\to$\{1,0\}, green$\to$\{0,1\}, blue$\to$\{0,0\}（少一列，减少冗余）}
+
+\subsection{Combine Levels \zhint{(合并类别)}}
+\zhint{频率很低的类别可以合并到一起，减少稀疏性。}
+
+% ============================================================
+\section{Duplication Removal \zhint{(去重)}}
+% ============================================================
+
+\subsection{Drop Duplicate Rows \zhint{(删重复行)}}
+\begin{lstlisting}
+data = df.drop_duplicates()
+\end{lstlisting}
+
+\subsection{Filter Constant Columns \zhint{(删常数列)}}
+\zhint{如果一列所有值都一样，没有信息量，删掉。}
+\begin{lstlisting}
+data = df.loc[:,
+    (df != df.iloc[0]).any()]
+\end{lstlisting}
+
+\subsection{Filter Correlated Columns \zhint{(删高相关列)}}
+\zhint{两列高度相关（如温度和温度$\times$2），留一个就够了。}
+\begin{lstlisting}
+def correlation(dataset, threshold):
+    col_corr = set()
+    corr_matrix = dataset.corr()
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i):
+            if abs(corr_matrix.iloc[i,j]) \
+                    > threshold:
+                colname = \
+                    corr_matrix.columns[i]
+                col_corr.add(colname)
+    return col_corr
+\end{lstlisting}
+
+% ============================================================
+\section{Data Normalization \zhint{(数据归一化)}}
+% ============================================================
+
+\zhint{不同特征量纲差距大（如年龄1--100 vs 收入10000--1000000），需要统一尺度。}
+
+\subsection{1. Min-Max \zhint{(最小最大归一化)}}
+\zhint{缩放到[0, 1]区间：$x' = \frac{x - \min}{\max - \min}$}
+\begin{lstlisting}
+from sklearn import preprocessing
+scaler = preprocessing.MinMaxScaler()
+X_scaled = scaler.fit_transform(X_train)
+\end{lstlisting}
+
+\subsection{2. Mean Normalization \zhint{(均值归一化)}}
+\zhint{$x' = \frac{x - \text{mean}}{\max - \min}$，结果在[-1, 1]附近}
+\begin{lstlisting}
+df_means = df.mean(axis=0)
+min_max_range = df.max(0) - df.min(0)
+df_scaled = (df - df_means) / min_max_range
+\end{lstlisting}
+
+\subsection{3. Z-score / Standardization \zhint{(标准化)}}
+\zhint{$x' = \frac{x - \mu}{\sigma}$，均值变0，标准差变1。最常用！}
+\begin{lstlisting}
+from sklearn.preprocessing import StandardScaler
+ss = StandardScaler()
+df_scaled = ss.fit_transform(df)
+\end{lstlisting}
+
+\subsection{4. Unit Length \zhint{(单位长度缩放)}}
+\zhint{让每个特征向量的长度（L2范数）变成1}
+\begin{lstlisting}
+df_scaled = df / np.sqrt(
+    np.square(df).sum(axis=0))
+\end{lstlisting}
+
+% ============================================================
+\section{Feature Selection \zhint{(特征选择)}}
+% ============================================================
+
+\zhint{数据太多列怎么办？挑出最有用的列，扔掉没用的，让模型更快更准。}
+
+\subsection{Why? \zhint{(为什么要特征选择？)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Remove irrelevant features \zhint{(去掉没用的列)}
+    \item Improve accuracy \zhint{(提高准确率)}
+    \item Reduce cost \zhint{(省计算资源)}
+    \item Simplify model \zhint{(模型更简单易懂)}
+\end{itemize}
+
+\subsection{Two Approaches \zhint{(两大类方法)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Select columns/rows} \zhint{(直接选列/行)}\\
+    \zhint{不改变原始特征，只挑子集}
+    \item \textbf{Dimensionality reduction} \zhint{(降维)}\\
+    \zhint{把多个特征压缩成少数几个新特征（PCA/LDA）}
+\end{enumerate}
+
+\subsection{Search Directions \zhint{(搜索方向)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{SFG} \zhint{(前向)}: start empty, add features one by one
+    \item \textbf{SBG} \zhint{(后向)}: start full, remove features one by one
+    \item \textbf{BG} \zhint{(双向)}: add and remove simultaneously
+    \item \textbf{RG} \zhint{(随机)}: random subsets
+\end{itemize}
+
+\subsection{Selection Criteria \zhint{(评价标准)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Information gain \zhint{(信息增益)}
+    \item Distance measure \zhint{(距离度量)}
+    \item Correlation (Pearson) \zhint{(相关系数)}
+    \item Consistency \zhint{(一致性)}
+    \item Accuracy \zhint{(准确率)}
+\end{itemize}
+
+\subsection{Wrapper Method \zhint{(包裹法)}}
+\zhint{用分类器本身来评估哪些特征组合最好。}
+\begin{lstlisting}
+from mlxtend.feature_selection import (
+    SequentialFeatureSelector as SFS)
+sfs = SFS(RandomForestClassifier(n_jobs=8),
+    k_features=5,   # pick 5 features
+    forward=True,    # forward search
+    floating=False,
+    scoring='roc_auc', cv=3)
+sfs = sfs.fit(X_train.values, y_train)
+selected = X_train.columns[
+    list(sfs.k_feature_idx_)]
+\end{lstlisting}
+
+\subsection{Embedded: LASSO \zhint{(嵌入法：L1正则化)}}
+\zhint{L1正则化会自动把不重要的特征权重压成0。}
+\begin{lstlisting}
+from sklearn.linear_model import (
+    LogisticRegression)
+from sklearn.feature_selection import (
+    SelectFromModel)
+from sklearn.preprocessing import (
+    StandardScaler)
+scaler = StandardScaler()
+scaler.fit(X_train.values)
+sel = SelectFromModel(
+    LogisticRegression(C=1, penalty='l1'))
+sel.fit(scaler.transform(X_train.values),
+    y_train)
+selected = X_train.columns[sel.get_support()]
+X_train = sel.transform(X_train)
+X_test = sel.transform(X_test)
+\end{lstlisting}
+
+% ============================================================
+\section{PCA \zhint{(主成分分析)}}
+% ============================================================
+
+\zhint{把很多特征压缩成少数几个"主成分"，保留尽可能多的信息（方差）。}
+
+\keybox{
+\zhint{核心思想：找到数据方差最大的方向，投影上去。}\\
+\zhint{PCA是无监督的（不看标签），返回最多min(行数,列数)个主成分。}
+}
+
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item PC basis = eigenvectors of covariance matrix \zhint{(主成分=协方差矩阵的特征向量)}
+    \item Larger eigenvalue = more important PC \zhint{(特征值越大越重要)}
+    \item Pick top PCs covering $\geq$ 85\% variance \zhint{(选前几个，覆盖85\%+方差)}
+\end{itemize}
+
+\begin{lstlisting}
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn import datasets
+digits = datasets.load_digits()
+# Standardize first!
+X = StandardScaler().fit_transform(
+    digits.data)
+# Keep 85% of variance
+pca = PCA(n_components=0.85, whiten=True)
+X_pca = pca.fit_transform(X)
+\end{lstlisting}
+
+% ============================================================
+\section{LDA \zhint{(线性判别分析)}}
+% ============================================================
+
+\zhint{和PCA类似做降维，但LDA是有监督的——会利用类别标签，让不同类尽量分开。}
+
+\keybox{
+\textbf{PCA vs LDA}:\\
+\zhint{PCA：无监督，最大化方差（保留信息最多）}\\
+\zhint{LDA：有监督，最大化类间距离（分类效果最好）}\\
+\zhint{PCA输出最多min(n,p)个PC；LDA输出最多K$-$1个LD（K=类别数）}
+}
+
+\begin{lstlisting}
+from sklearn.discriminant_analysis import (
+    LinearDiscriminantAnalysis as LDA)
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import (
+    train_test_split)
+# Split and scale
+X_train, X_test, y_train, y_test = \
+    train_test_split(X, y,
+    test_size=0.2, random_state=0)
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+# LDA: reduce to 1 dimension
+lda = LDA(n_components=1)
+X_train = lda.fit_transform(X_train, y_train)
+X_test = lda.transform(X_test)
+\end{lstlisting}
+\zhint{注意：LDA的fit需要传y（标签），PCA不需要。}
+
+\subsection{Other Methods \zhint{(其他降维方法)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{t-SNE} \zhint{(保留局部结构，适合可视化)}
+    \item \textbf{UMAP} \zhint{(比t-SNE更快，兼顾全局)}
+    \item \textbf{SVD} \zhint{(奇异值分解，PCA的推广)}
+\end{itemize}
+
+% ============================================================
+\section{Quick Reference \zhint{(速查总结)}}
+% ============================================================
+
+\begin{center}
+\scriptsize
+\begin{tabular}{lp{4cm}}
+\toprule
+\textbf{Task} \zhint{(任务)} & \textbf{Key Code} \zhint{(关键代码)} \\
+\midrule
+Split data \zhint{(划分)} & \texttt{train\_test\_split()} \\
+Fill NaN \zhint{(填缺失)} & \texttt{SimpleImputer / IterativeImputer} \\
+Encode cat. \zhint{(编码)} & \texttt{LabelEncoder / pd.cut / cat.codes} \\
+Deduplicate \zhint{(去重)} & \texttt{drop\_duplicates()} \\
+Normalize \zhint{(归一化)} & \texttt{MinMaxScaler / StandardScaler} \\
+PCA \zhint{(主成分)} & \texttt{PCA(n\_components=0.85)} \\
+LDA \zhint{(判别)} & \texttt{LDA(n\_components=1)} \\
+Feature sel. \zhint{(特征选择)} & \texttt{SFS / SelectFromModel(LASSO)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\keybox{
+\textbf{Preprocessing Pipeline} \zhint{(完整流程)}:\\
+Load $\to$ Wrangle $\to$ Impute $\to$ Encode $\to$ Deduplicate $\to$ Split $\to$ Normalize $\to$ Feature Select\\
+\zhint{加载 $\to$ 整理 $\to$ 填缺失 $\to$ 编码 $\to$ 去重 $\to$ 划分 $\to$ 归一化 $\to$ 选特征}
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}
