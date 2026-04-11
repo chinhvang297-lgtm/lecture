@@ -1,0 +1,376 @@
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+% Page layout
+\geometry{top=0.8cm, bottom=0.8cm, left=0.8cm, right=0.8cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlength{\columnsep}{8pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=3pt,
+    belowskip=3pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+% Custom box for key concepts
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries IERG4320/IEMS5726 --- Chapter 2: Basic Statistical Test --- Cheat Sheet}\\[2pt]
+    {\small Prof.\ YAN Wenjing, Dr.\ Danny Yip \quad|\quad Department of Information Engineering, CUHK}
+\end{center}
+
+\vspace{2pt}
+\begin{multicols}{3}
+
+% ============================================================
+\section{Key Terminology}
+% ============================================================
+
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Population}: entire source of data
+    \item \textbf{Sample}: a portion of the population
+    \item \textbf{Variable}: any data item measurable or countable
+    \item \textbf{Descriptive statistics}: characteristics of a population
+    \item \textbf{Inferential statistics}: predictions for a population
+\end{itemize}
+
+\subsection{Central Tendency}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Mean}: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$
+    \item \textbf{Median}: central value of ordered data
+    \item \textbf{Mode}: most frequent value
+\end{itemize}
+
+\subsection{Measures of Spread}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Range}: $\max - \min$
+    \item \textbf{Variance}: $\sigma^2 = \frac{1}{n}\sum(x_i - \bar{x})^2$
+    \item \textbf{Std Dev}: $\sigma = \sqrt{\sigma^2}$
+\end{itemize}
+
+% ============================================================
+\section{Hypothesis Testing}
+% ============================================================
+
+\textbf{Goal}: Rule out chance (sampling error) as an explanation for observed results.
+
+\subsection{Steps}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{State Hypotheses}
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item $H_0$ (null): no effect / no difference
+        \item $H_a$ (alternative): effect exists
+    \end{itemize}
+    \item \textbf{Choose significance level} $\alpha$ (0.05, 0.01, or 0.1)
+    \item \textbf{Select test}: Z-test, t-test, $\chi^2$, etc.
+    \item \textbf{Calculate test statistic} (e.g., z-score)
+    \item \textbf{Determine critical region}
+    \item \textbf{Decision}: Reject $H_0$ or fail to reject $H_0$
+\end{enumerate}
+
+\subsection{Critical Regions}
+\textbf{One-tailed}:
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Left-tail: reject $H_0$ if $z < -z_\alpha$
+    \item Right-tail: reject $H_0$ if $z > z_\alpha$
+\end{itemize}
+\textbf{Two-tailed}: reject $H_0$ if $|z| > z_{\alpha/2}$
+
+\subsection{p-value}
+\keybox{
+$p$-value = probability of observing results as extreme as (or more extreme than) the data, \emph{assuming $H_0$ is true}.\\[2pt]
+\textbf{Rule}: If $p < \alpha$, reject $H_0$.
+}
+
+\textbf{Example}: Coin fairness test ($H_0: p=0.5$), 100 flips, 60 heads:\\
+$p\text{-value} = 2\,P(X \geq 60) = 2(0.0287) = 0.0574 > 0.05$\\
+$\Rightarrow$ Cannot reject $H_0$ at 95\% significance.
+
+% ============================================================
+\section{Fisher's Exact Test}
+% ============================================================
+
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item For \textbf{2$\times$2 contingency tables}
+    \item Tests independence of two binary variables
+    \item Computes \textbf{exact} probability (no approximation)
+\end{itemize}
+
+\subsection{Contingency Table}
+\begin{center}
+\begin{tabular}{l|cc|c}
+\toprule
+ & Group I & Group II & Total \\
+\midrule
+Scene 1 & $a$ & $b$ & $a+b$ \\
+Not Scene 1 & $c$ & $d$ & $c+d$ \\
+\midrule
+Total & $a+c$ & $b+d$ & $n$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Example: Are dice fair?}
+\begin{center}
+\begin{tabular}{l|cc}
+\toprule
+Rolling 2 dice & Experiment & Theory \\
+\midrule
+Sum $\geq$ 10 & 15 & 6 \\
+Sum $<$ 10 & 57 & 30 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{lstlisting}
+import scipy.stats as stats
+oddsratio, pvalue = stats.fisher_exact(
+    [[15, 57], [6, 30]], "greater")
+print(oddsratio, " ", pvalue)
+# 1.3158  0.4051
+\end{lstlisting}
+$p = 0.405 \gg 0.05 \Rightarrow$ Cannot reject $H_0$.
+
+\subsection{Pros \& Cons}
+\textbf{Advantages}: ideal for small samples; exact probability.\\
+\textbf{Disadvantages}: only binary variables; slow for large $n$.
+
+% ============================================================
+\section{Chi-squared Test ($\chi^2$ Test)}
+% ============================================================
+
+Tests whether observed frequencies differ significantly from expected frequencies.
+
+\subsection{Test Statistic}
+\[
+\chi^2 = \sum_{i=1}^{k} \frac{(O_i - E_i)^2}{E_i}
+\]
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item $O_i$: observed count of type $i$
+    \item $E_i = N p_i$: expected count under $H_0$
+    \item Degrees of freedom: $df = k - 1$
+\end{itemize}
+
+\subsection{Chi-square Distribution}
+If $X_1, \ldots, X_k \sim N(0,1)$ are independent, then:
+\[
+Y = X_1^2 + X_2^2 + \cdots + X_k^2 \sim \chi^2(k)
+\]
+Properties: $E[Y]=k$, $\mathrm{Var}(Y)=2k$.
+
+\subsection{Example: Biased die?}
+Die thrown 60 times: $O = [5, 8, 9, 8, 10, 20]$, $E_i = 10$.
+
+\begin{center}
+\small
+\begin{tabular}{c|cccccc|c}
+\toprule
+$i$ & 1 & 2 & 3 & 4 & 5 & 6 & $\Sigma$ \\
+\midrule
+$O_i$ & 5 & 8 & 9 & 8 & 10 & 20 & 60 \\
+$E_i$ & 10 & 10 & 10 & 10 & 10 & 10 & 60 \\
+$\frac{(O_i-E_i)^2}{E_i}$ & 2.5 & 0.4 & 0.1 & 0.4 & 0 & 10 & \textbf{13.4} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{lstlisting}
+from scipy.stats import chisquare
+chi2, pvalue = chisquare([5,8,9,8,10,20])
+print(chi2, " ", pvalue)
+# 13.4  0.01991
+\end{lstlisting}
+
+\textbf{Decision} ($df=5$, $\chi^2 = 13.4$):
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item 95\%: $13.4 > 11.070 \Rightarrow$ \textbf{Reject $H_0$} (die is biased)
+    \item 99\%: $13.4 < 15.086 \Rightarrow$ Cannot reject $H_0$
+\end{itemize}
+
+% ============================================================
+\section{Wilcoxon Rank-Sum Test}
+\small{(Mann--Whitney U Test)}
+% ============================================================
+
+Non-parametric alternative to the two-sample t-test for \textbf{independent} samples.
+
+\subsection{Hypotheses \& Assumptions}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item $H_0$: $P(X > Y) = P(Y > X)$
+    \item Observations are independent
+    \item Under $H_0$, distributions of both populations are equal
+\end{itemize}
+
+\subsection{Procedure}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item Rank all data from both groups (ascending); average ties
+    \item $T$ = sum of ranks of one group
+    \item $U = T - \frac{n(n+1)}{2}$, \quad $n$ = group size
+    \item Normal approx: $\mu_U = \frac{n_1 n_2}{2}$, \; $\sigma_U = \sqrt{\frac{n_1 n_2 (n_1+n_2+1)}{12}}$
+    \item $z = \frac{U - \mu_U}{\sigma_U}$, evaluate $p$-value
+\end{enumerate}
+
+\subsection{Example}
+$X$ (15 values), $Y$ (14 values):\\
+$U_X = 272 - \frac{15 \times 16}{2} = 152$, \quad $U_Y = 58$\\
+$\mu_U = 105$, \; $\sigma_U = 56.125$\\
+$z = \frac{152 - 105}{56.125} = 0.837$, \; $p = 0.040$\\
+Cannot reject $H_0$ at 99\% level.
+
+\begin{lstlisting}
+from scipy.stats import ranksums, mannwhitneyu
+import numpy as np
+X = np.array([3.99, 3.79, 3.60, 3.73, 3.21,
+    3.60, 4.08, 3.61, 3.83, 3.31,
+    4.13, 3.26, 3.54, 3.51, 2.71])
+Y = np.array([3.18, 2.84, 2.90, 3.27, 3.85,
+    3.52, 3.23, 2.76, 3.60, 3.75,
+    3.59, 3.63, 2.38, 2.34])
+U, pvalue = ranksums(X, Y)
+print(U, pvalue)
+# 2.0512  0.04024
+
+statistic, pvalue = mannwhitneyu(X, Y)
+print(statistic, pvalue)
+# 152.0  0.04231
+\end{lstlisting}
+
+% ============================================================
+\section{Wilcoxon Signed-Rank Test}
+% ============================================================
+
+Non-parametric alternative to the \textbf{paired} t-test for \textbf{dependent} samples.
+
+\subsection{Hypotheses \& Assumptions}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item $H_0$: two dependent samples come from same distribution
+    \item Data are paired, each pair chosen randomly and independently
+\end{itemize}
+
+\subsection{Procedure}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item Compute differences $d_i = x_i - y_i$
+    \item Exclude pairs where $d_i = 0$
+    \item Rank by $|d_i|$ (ascending); average ties
+    \item $W = \sum \text{signed ranks}$
+    \item $\sigma_W = \sqrt{\frac{n(n+1)(2n+1)}{6}}$
+    \item Test stat: $t = \frac{W}{\sigma_W}$, evaluate with $t$-distribution ($df = n-1$)
+\end{enumerate}
+
+\subsection{Example}
+\begin{center}
+\scriptsize
+\begin{tabular}{cccc}
+\toprule
+$X$ & $Y$ & $X-Y$ & Rank \\
+\midrule
+6.1 & 5.2 & 0.9 & 3.5 \\
+7.0 & 7.9 & $-0.9$ & 3.5 \\
+8.2 & 3.9 & 4.3 & 10 \\
+7.6 & 4.7 & 2.9 & 7 \\
+6.5 & 5.3 & 1.2 & 5 \\
+8.4 & 5.4 & 3.0 & 8 \\
+6.9 & 4.2 & 2.7 & 6 \\
+6.7 & 6.1 & 0.6 & 2 \\
+7.4 & 3.8 & 3.6 & 9 \\
+5.8 & 6.3 & $-0.5$ & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+$W = 46$, \; $\sigma_W = 19.62$, \; $df = 9$\\
+$P(|t_9| > 46/19.62) = 0.0438$\\
+Cannot reject $H_0$ at 99\% level.
+
+\begin{lstlisting}
+from scipy.stats import wilcoxon
+import numpy as np
+X = np.array([6.1, 7.0, 8.2, 7.6, 6.5,
+              8.4, 6.9, 6.7, 7.4, 5.8])
+Y = np.array([5.2, 7.9, 3.9, 4.7, 5.3,
+              5.4, 4.2, 6.1, 3.8, 6.3])
+T, pvalue = wilcoxon(X, Y)
+print(T, pvalue)
+# 5.0  0.01953
+\end{lstlisting}
+
+\textbf{Note}: Python \texttt{wilcoxon()} uses T-statistic (min of positive/negative rank sums), which differs from hand-calculated W-statistic.
+
+% ============================================================
+\section{Quick Reference: Which Test?}
+% ============================================================
+
+\begin{center}
+\small
+\begin{tabular}{lp{4.2cm}}
+\toprule
+\textbf{Test} & \textbf{When to Use} \\
+\midrule
+Fisher's Exact & 2$\times$2 table, small sample, binary vars \\
+$\chi^2$ Test & Multi-category frequency comparison \\
+Rank-Sum (U) & 2 independent groups, non-normal data \\
+Signed-Rank & Paired data, non-normal data \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\keybox{
+\textbf{Core logic}: Compute statistic $\rightarrow$ get $p$-value $\rightarrow$ if $p < \alpha$, reject $H_0$ $\rightarrow$ result is statistically significant.
+}
+
+\subsection{Other Tests (For Reference)}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{t-test / Paired t-test}: compare two vars from same population
+    \item \textbf{ANOVA}: extension of t-test for multiple groups
+    \item \textbf{Correlation}: linear relationship between two vars
+    \item \textbf{Regression}: predict unknown from known vars
+    \item \textbf{Non-parametric tests}: no distribution assumptions
+\end{itemize}
+
+\end{multicols}
+\end{document}
