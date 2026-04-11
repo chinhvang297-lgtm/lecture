@@ -1,0 +1,346 @@
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+% Page layout
+\geometry{top=0.8cm, bottom=0.8cm, left=0.8cm, right=0.8cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlength{\columnsep}{8pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=3pt,
+    belowskip=3pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+% Custom box for key concepts
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries IERG4320/IEMS5726 --- Chapter 1: Course Introduction --- Cheat Sheet}\\[2pt]
+    {\small Prof.\ YAN Wenjing, Dr.\ Danny Yip \quad|\quad Department of Information Engineering, CUHK}
+\end{center}
+
+\vspace{2pt}
+\begin{multicols}{3}
+
+% ============================================================
+\section{Course Overview}
+% ============================================================
+
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Lecture}: Wed 7:00--10:00 pm @ LSB LT6 (12 lectures)
+    \item \textbf{Final Exam}: 15 Apr, ERB 1004, open book/note, close internet
+\end{itemize}
+
+\subsection{Assessment}
+\begin{tabular}{ll}
+UReply attendance & 5\% \\
+4 Assignments & 35\% (Python programming) \\
+Course project & 20\% (due 8 May) \\
+Final examination & 40\% (written, open book) \\
+\end{tabular}
+
+\subsection{Fail Conditions}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Final exam below 30\%
+    \item Grand total below 40\%
+    \item Not submitting course project
+\end{itemize}
+
+\subsection{AI Tool Policy}
+Generative AI (ChatGPT, DeepSeek, Gemini) \textbf{allowed} for coursework (Approach 3), but \textbf{not} for final exam. Must clearly state which parts used AI.
+
+% ============================================================
+\section{Key Terminology}
+% ============================================================
+
+\subsection{Data-related Terms}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Database}: a collection of well-organized, easily managed data
+    \item \textbf{Data Analysis}: retrieving knowledge from data
+    \item \textbf{Data Mining}: extracting knowledge from \emph{large} data sets
+    \item \textbf{Big Data}: handling large and complex data sets
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item Challenges: storage, analysis, transfer, search, visualization, updating
+    \end{itemize}
+\end{itemize}
+
+\subsection{AI / ML / DL}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Artificial Intelligence (AI)}: knowledge or behaviour demonstrated by machines
+    \item \textbf{Machine Learning (ML)}: algorithms that improve knowledge retrieval from data (subset of AI)
+    \item \textbf{Deep Learning (DL)}: multiple layers in network for improved knowledge retrieval (subset of ML)
+\end{itemize}
+
+\keybox{
+\textbf{Relationship}: AI $\supset$ ML $\supset$ DL
+}
+
+\subsection{Roles in Data Science}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Data Scientist}: transforms data into valuable insights and strategic decisions
+    \item \textbf{ML Engineer}: turns data-driven models into practical applications
+    \item \textbf{Data Engineer}: builds foundation of robust data infrastructure
+\end{itemize}
+
+% ============================================================
+\section{Data Science}
+% ============================================================
+
+Uses scientific methods, processes, algorithms, and systems to extract knowledge and insights from data.
+
+\subsection{Relevant Disciplines}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Computer science --- database, data processing, programming
+    \item Informatics --- computation systems, knowledge extraction
+    \item Statistics --- interpretation of results
+    \item Communication and visualization
+    \item Domain-specific disciplines
+\end{itemize}
+
+\subsection{Data Science Lifecycle}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Data Acquisition} --- collect raw data
+    \item \textbf{Data Cleaning \& Warehousing} --- preprocess and store
+    \item \textbf{Data Modeling \& Summarization} --- build models
+    \item \textbf{Data Analysis} --- extract insights
+    \item \textbf{Data Visualization} --- present findings
+\end{enumerate}
+
+\subsection{Importance of Data Science}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Cost efficient
+    \item Decision making tool
+    \item Understand customer behaviour
+    \item Analyze and manage risks
+    \item Product development and innovations
+\end{enumerate}
+
+% ============================================================
+\section{Classic Examples}
+% ============================================================
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Handwritten Digit Recognition} (MNIST) --- one of the first widely used ML systems
+    \item \textbf{Recommender Systems} --- Netflix Prize competition
+    \item \textbf{Face Detection / Recognition} --- e.g.\ Microsoft Face API
+    \item \textbf{Machine Translation} --- statistical (SMT) or neural (NMT), e.g.\ Google NMT
+    \item \textbf{Face Generator} --- Generative Adversarial Networks (GANs)
+    \item \textbf{ChatGPT} --- NLP tool for human-like conversations, composing emails, essays, and code
+\end{enumerate}
+
+% ============================================================
+\section{Types of Data Analytics}
+% ============================================================
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Predictive}: ``What might happen in the future?''
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item E.g.\ How much chocolate ice-cream needed tomorrow?
+    \end{itemize}
+    \item \textbf{Descriptive}: ``What happened?''
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item E.g.\ What are the top flavours last week?
+    \end{itemize}
+    \item \textbf{Prescriptive}: ``What should we do next?''
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item E.g.\ Should we increase/reduce quality?
+    \end{itemize}
+    \item \textbf{Diagnostic} (optional): ``Why did this happen?''
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item E.g.\ Why are chocolate \& vanilla best sellers?
+    \end{itemize}
+\end{enumerate}
+
+% ============================================================
+\section{AI Ethics \& Governance}
+% ============================================================
+
+\subsection{EU AI Act}
+First regulation on AI --- ensure AI systems in EU are safe and respect fundamental rights.
+
+\begin{center}
+\small
+\begin{tabular}{lp{4.5cm}}
+\toprule
+\textbf{Risk Level} & \textbf{Examples \& Strategy} \\
+\midrule
+Unacceptable & Biometric ID, social scoring, deceptive techniques $\rightarrow$ \textbf{Prohibited} \\
+High & Medical devices, autonomous vehicles, education AI $\rightarrow$ Conformity assessment \\
+Limited & ChatGPT, deep fakes, chatbots $\rightarrow$ Transparency obligations \\
+Minimal & AI video games, spam filters $\rightarrow$ Code of conduct \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{HK Ethical AI Framework (Jul 2024)}
+Issued by Digital Policy Office (DPO) for internal government AI adoption.
+
+\textbf{12 Ethical AI Principles}:
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Transparency \& Interpretability
+    \item Reliability, Robustness \& Security
+    \item Fairness (no discrimination)
+    \item Diversity \& Inclusion
+    \item Human Oversight
+    \item Lawfulness \& Compliance
+    \item Safety
+    \item Data Privacy
+    \item Accountability
+    \item Beneficial AI
+    \item Cooperation \& Openness
+    \item Sustainability \& Just Transition
+\end{enumerate}
+
+\subsection{AI Governance --- Lines of Defence}
+Multi-layered governance model aligning AI lifecycle with system development lifecycle, including risk gating and impact assessment at each stage.
+
+\subsection{Mainland China}
+``Global AI Governance Initiative'' and ``Interim Measures for Management of Generative AI Services'' (effective Aug 2023), under Cybersecurity Law, Data Security Law, and Personal Information Protection Law.
+
+% ============================================================
+\section{Course Approach}
+% ============================================================
+
+\textbf{Not} just a standard ML intro course. Also covers:
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Data collection \& preprocessing
+    \item Data representation
+    \item Data visualization
+    \item Problem-specific domains
+\end{itemize}
+
+\textbf{Prerequisites}: Statistics, linear algebra, calculus, probability theory, signal processing.
+
+\textbf{After this course}: common ML tasks, domain-specific details, data visualization at different stages, intuition of neural data representation.
+
+% ============================================================
+\section{Course Schedule}
+% ============================================================
+
+\begin{center}
+\scriptsize
+\begin{tabular}{clc}
+\toprule
+\# & Topic & Date \\
+\midrule
+1 & Course Outline, FastAPI App & 7/1 \\
+2 & Basic Statistics & 14/1 \\
+3--5 & Data Representation & 14, 21, 28/1 \\
+6--7 & Data Modeling & 4, 11/2 \\
+8 & Data Visualization & 25/2 \\
+9 & Case Study: Business & 4, 11/3 \\
+10 & Case Study: Text Mining & 11, 18/3 \\
+11 & Case Study: Multimedia & 18, 25/3 \\
+12 & Case Study: Game & 25/3, 1/4 \\
+13 & Course Summary & 1/4 \\
+\# & Final Examination & 15/4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ============================================================
+\section{Python Environment}
+% ============================================================
+
+\subsection{What is Python?}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item High-level interpreted language, created by Guido van Rossum (1991)
+    \item Emphasizes code readability and flexibility
+    \item Current stable: Python 3.13 (used for grading via Anaconda)
+\end{itemize}
+
+\subsection{Hello World}
+\begin{lstlisting}
+# In Python interpreter
+>>> print("Hello World!")
+Hello World!
+\end{lstlisting}
+
+\begin{lstlisting}
+# As a script: helloworld.py
+print("Hello World!")
+
+# Execute:
+# $ python helloworld.py
+\end{lstlisting}
+
+\subsection{Common Uses of Python}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Web backends (YouTube, Dropbox, Reddit)
+    \item Scientific computing
+    \item Data science \& ML (e.g.\ PyTorch)
+    \item Data visualization
+    \item Financial analysis
+\end{itemize}
+
+\subsection{Recommended Setup}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{Anaconda Python 3.13} --- 1500+ data science packages, simplified package management
+    \item \textbf{IDE}: VS Code (free, open source)
+\end{itemize}
+
+% ============================================================
+\section{Reference Books}
+% ============================================================
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=2pt]
+    \item \textit{Practical Statistics for Data Scientists} --- 50 essential concepts (EDA, distributions, regression, classification)
+    \item \textit{Python for Data Analysis} --- Pandas, NumPy, IPython (data wrangling, visualization)
+    \item \textit{Intro to ML with Python} --- supervised/unsupervised learning, model evaluation
+    \item \textit{Data Science and Big Data Analytics} --- lifecycle, clustering, association rules, text analysis
+    \item \textit{Deep Learning} (Goodfellow et al.) --- foundations to advanced topics (CNNs, RNNs, generative models)
+\end{enumerate}
+
+\subsection{Python Resources}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Docs: \texttt{docs.python.org/3/}
+    \item Tutorials: \texttt{learnpython.org}, \texttt{w3schools.com/python}
+\end{itemize}
+
+\end{multicols}
+\end{document}
