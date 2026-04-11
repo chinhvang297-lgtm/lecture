@@ -12,6 +12,7 @@
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \usepackage{hyperref}
+\usepackage{CJKutf8}
 
 % Page layout
 \geometry{top=0.8cm, bottom=0.8cm, left=0.8cm, right=0.8cm}
@@ -57,7 +58,11 @@
     \end{center}
 }
 
+% Chinese hint style (gray, smaller)
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
 \begin{document}
+\begin{CJK}{UTF8}{gbsn}
 
 \begin{center}
     {\large\bfseries IERG4320/IEMS5726 --- Chapter 2: Basic Statistical Test --- Cheat Sheet}\\[2pt]
@@ -68,98 +73,119 @@
 \begin{multicols}{3}
 
 % ============================================================
-\section{Key Terminology}
+\section{Key Terminology \zhint{(基础概念)}}
 % ============================================================
 
 \begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
-    \item \textbf{Population}: entire source of data
-    \item \textbf{Sample}: a portion of the population
-    \item \textbf{Variable}: any data item measurable or countable
-    \item \textbf{Descriptive statistics}: characteristics of a population
-    \item \textbf{Inferential statistics}: predictions for a population
+    \item \textbf{Population} \zhint{(总体)}: all data you want to study\\
+    \zhint{比如"全校所有学生"}
+    \item \textbf{Sample} \zhint{(样本)}: a portion you actually collect\\
+    \zhint{比如"随机抽了100个学生"}
+    \item \textbf{Variable} \zhint{(变量)}: anything you can measure\\
+    \zhint{比如身高、成绩、年龄}
+    \item \textbf{Descriptive stats} \zhint{(描述统计)}: describe what data looks like\\
+    \zhint{比如"平均分是75"}
+    \item \textbf{Inferential stats} \zhint{(推断统计)}: use sample to predict population\\
+    \zhint{用100人的数据推测全校情况}
 \end{itemize}
 
-\subsection{Central Tendency}
+\subsection{Central Tendency \zhint{(集中趋势)}}
 \begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
-    \item \textbf{Mean}: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$
-    \item \textbf{Median}: central value of ordered data
-    \item \textbf{Mode}: most frequent value
+    \item \textbf{Mean} \zhint{(均值/平均数)}: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$\\
+    \zhint{所有数加起来除以个数}
+    \item \textbf{Median} \zhint{(中位数)}: middle value when sorted\\
+    \zhint{数据排好序后最中间那个}
+    \item \textbf{Mode} \zhint{(众数)}: most frequent value\\
+    \zhint{出现次数最多的那个值}
 \end{itemize}
 
-\subsection{Measures of Spread}
+\subsection{Spread \zhint{(离散程度)}}
 \begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
-    \item \textbf{Range}: $\max - \min$
-    \item \textbf{Variance}: $\sigma^2 = \frac{1}{n}\sum(x_i - \bar{x})^2$
-    \item \textbf{Std Dev}: $\sigma = \sqrt{\sigma^2}$
+    \item \textbf{Range} \zhint{(范围)}: $\max - \min$
+    \item \textbf{Variance} \zhint{(方差)}: $\sigma^2 = \frac{1}{n}\sum(x_i - \bar{x})^2$\\
+    \zhint{每个值离均值有多远，取平方再平均}
+    \item \textbf{Std Dev} \zhint{(标准差)}: $\sigma = \sqrt{\sigma^2}$\\
+    \zhint{方差开根号，更直观看数据有多分散}
 \end{itemize}
 
 % ============================================================
-\section{Hypothesis Testing}
+\section{Hypothesis Testing \zhint{(假设检验)}}
 % ============================================================
 
-\textbf{Goal}: Rule out chance (sampling error) as an explanation for observed results.
+\zhint{核心问题：观察到的结果到底是真的有意义，还是碰巧？}
 
-\subsection{Steps}
-\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
-    \item \textbf{State Hypotheses}
-    \begin{itemize}[nosep, itemsep=0pt]
-        \item $H_0$ (null): no effect / no difference
-        \item $H_a$ (alternative): effect exists
-    \end{itemize}
-    \item \textbf{Choose significance level} $\alpha$ (0.05, 0.01, or 0.1)
-    \item \textbf{Select test}: Z-test, t-test, $\chi^2$, etc.
-    \item \textbf{Calculate test statistic} (e.g., z-score)
-    \item \textbf{Determine critical region}
-    \item \textbf{Decision}: Reject $H_0$ or fail to reject $H_0$
-\end{enumerate}
-
-\subsection{Critical Regions}
-\textbf{One-tailed}:
-\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
-    \item Left-tail: reject $H_0$ if $z < -z_\alpha$
-    \item Right-tail: reject $H_0$ if $z > z_\alpha$
-\end{itemize}
-\textbf{Two-tailed}: reject $H_0$ if $|z| > z_{\alpha/2}$
-
-\subsection{p-value}
 \keybox{
-$p$-value = probability of observing results as extreme as (or more extreme than) the data, \emph{assuming $H_0$ is true}.\\[2pt]
-\textbf{Rule}: If $p < \alpha$, reject $H_0$.
+\textbf{Goal} \zhint{(目的)}: Rule out ``luck'' as the explanation.\\
+\zhint{排除"纯属巧合"这种可能性。}
 }
 
-\textbf{Example}: Coin fairness test ($H_0: p=0.5$), 100 flips, 60 heads:\\
-$p\text{-value} = 2\,P(X \geq 60) = 2(0.0287) = 0.0574 > 0.05$\\
-$\Rightarrow$ Cannot reject $H_0$ at 95\% significance.
+\subsection{6 Steps \zhint{(六步走)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{State Hypotheses} \zhint{(提出假设)}
+    \begin{itemize}[nosep, itemsep=0pt]
+        \item $H_0$ \zhint{(零假设)}: no effect \zhint{(没效果)}
+        \item $H_a$ \zhint{(备择假设)}: effect exists \zhint{(有效果)}
+    \end{itemize}
+    \item \textbf{Choose $\alpha$} \zhint{(选显著性水平)}: 0.05, 0.01, or 0.1\\
+    \zhint{$\alpha=0.05$意思是：巧合概率$<$5\%时，我就认为不是巧合}
+    \item \textbf{Pick a test} \zhint{(选检验方法)}: Z, t, $\chi^2$, etc.
+    \item \textbf{Calculate test statistic} \zhint{(算统计量)}
+    \item \textbf{Find critical region} \zhint{(确定拒绝域)}
+    \item \textbf{Decision} \zhint{(做决定)}: reject $H_0$ or not
+\end{enumerate}
+
+\subsection{Critical Regions \zhint{(拒绝域)}}
+\textbf{One-tailed} \zhint{(单尾，只看一个方向)}:
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Left: reject $H_0$ if $z < -z_\alpha$
+    \item Right: reject $H_0$ if $z > z_\alpha$
+\end{itemize}
+\textbf{Two-tailed} \zhint{(双尾，两边都看)}: reject if $|z| > z_{\alpha/2}$\\
+\zhint{比如检验硬币公不公平，正面太多或太少都算有问题}
+
+\subsection{p-value \zhint{(p值)}}
+\keybox{
+$p$-value = probability of seeing this result (or more extreme) when $H_0$ is true.\\
+\zhint{p值 = 假如真的没效果，出现当前结果的概率有多大}\\[2pt]
+\textbf{Rule}: $p < \alpha \Rightarrow$ reject $H_0$ \zhint{(拒绝零假设 = 有显著效果)}\\
+\zhint{p值越小，越能说明"不是巧合"}
+}
+
+\textbf{Example} \zhint{(例子)}: Test if coin is fair ($H_0: p=0.5$), flip 100 times, get 60 heads:\\
+$p = 2\,P(X \geq 60) = 0.0574 > 0.05$\\
+$\Rightarrow$ Cannot reject $H_0$ \zhint{(不能说硬币不公平)}
 
 % ============================================================
-\section{Fisher's Exact Test}
+\section{Fisher's Exact Test \zhint{(Fisher精确检验)}}
 % ============================================================
+
+\zhint{适用场景：2$\times$2表格、小样本、变量只有两类（是/否）}
 
 \begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
-    \item For \textbf{2$\times$2 contingency tables}
-    \item Tests independence of two binary variables
-    \item Computes \textbf{exact} probability (no approximation)
+    \item For \textbf{2$\times$2 contingency tables} \zhint{(列联表)}
+    \item Tests if two binary variables are independent \zhint{(两个变量是否有关)}
+    \item Computes \textbf{exact} probability \zhint{(精确计算，不是近似)}
 \end{itemize}
 
-\subsection{Contingency Table}
+\subsection{Contingency Table \zhint{(列联表)}}
 \begin{center}
 \begin{tabular}{l|cc|c}
 \toprule
  & Group I & Group II & Total \\
 \midrule
-Scene 1 & $a$ & $b$ & $a+b$ \\
-Not Scene 1 & $c$ & $d$ & $c+d$ \\
+Category A & $a$ & $b$ & $a+b$ \\
+Category B & $c$ & $d$ & $c+d$ \\
 \midrule
 Total & $a+c$ & $b+d$ & $n$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\subsection{Example: Are dice fair?}
+\subsection{Example \zhint{(例子：骰子公不公平？)}}
 \begin{center}
 \begin{tabular}{l|cc}
 \toprule
-Rolling 2 dice & Experiment & Theory \\
+Rolling 2 dice & Exper. & Theory \\
 \midrule
 Sum $\geq$ 10 & 15 & 6 \\
 Sum $<$ 10 & 57 & 30 \\
@@ -174,37 +200,38 @@ oddsratio, pvalue = stats.fisher_exact(
 print(oddsratio, " ", pvalue)
 # 1.3158  0.4051
 \end{lstlisting}
-$p = 0.405 \gg 0.05 \Rightarrow$ Cannot reject $H_0$.
+$p = 0.405 \gg 0.05 \Rightarrow$ Cannot reject $H_0$\\
+\zhint{p值远大于0.05，没有证据说骰子不公平}
 
-\subsection{Pros \& Cons}
-\textbf{Advantages}: ideal for small samples; exact probability.\\
-\textbf{Disadvantages}: only binary variables; slow for large $n$.
+\subsection{Pros \& Cons \zhint{(优缺点)}}
+\zhint{优点：小样本精确；缺点：只能处理2$\times$2表格，大数据慢}
 
 % ============================================================
-\section{Chi-squared Test ($\chi^2$ Test)}
+\section{Chi-squared Test \zhint{(卡方检验, $\chi^2$)}}
 % ============================================================
 
-Tests whether observed frequencies differ significantly from expected frequencies.
+\zhint{适用场景：多类别频率比较，看实际频率和预期频率是否有显著差异}
 
-\subsection{Test Statistic}
+\subsection{Test Statistic \zhint{(公式)}}
 \[
 \chi^2 = \sum_{i=1}^{k} \frac{(O_i - E_i)^2}{E_i}
 \]
 \begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
-    \item $O_i$: observed count of type $i$
-    \item $E_i = N p_i$: expected count under $H_0$
-    \item Degrees of freedom: $df = k - 1$
+    \item $O_i$: observed count \zhint{(实际观察到的次数)}
+    \item $E_i = N p_i$: expected count \zhint{(理论上期望的次数)}
+    \item $df = k - 1$ \zhint{(自由度 = 类别数 $-$ 1)}
 \end{itemize}
+\zhint{核心思想：$\chi^2$越大，说明实际和预期差得越多}
 
-\subsection{Chi-square Distribution}
-If $X_1, \ldots, X_k \sim N(0,1)$ are independent, then:
+\subsection{Chi-square Distribution \zhint{(卡方分布)}}
+If $X_1, \ldots, X_k \sim N(0,1)$ independent, then:
 \[
 Y = X_1^2 + X_2^2 + \cdots + X_k^2 \sim \chi^2(k)
 \]
-Properties: $E[Y]=k$, $\mathrm{Var}(Y)=2k$.
+$E[Y]=k$, \; $\mathrm{Var}(Y)=2k$
 
-\subsection{Example: Biased die?}
-Die thrown 60 times: $O = [5, 8, 9, 8, 10, 20]$, $E_i = 10$.
+\subsection{Example \zhint{(例子：骰子有没有偏？)}}
+\zhint{骰子掷60次，各面出现：5, 8, 9, 8, 10, 20次。公平骰子每面应该10次。}
 
 \begin{center}
 \small
@@ -214,10 +241,11 @@ $i$ & 1 & 2 & 3 & 4 & 5 & 6 & $\Sigma$ \\
 \midrule
 $O_i$ & 5 & 8 & 9 & 8 & 10 & 20 & 60 \\
 $E_i$ & 10 & 10 & 10 & 10 & 10 & 10 & 60 \\
-$\frac{(O_i-E_i)^2}{E_i}$ & 2.5 & 0.4 & 0.1 & 0.4 & 0 & 10 & \textbf{13.4} \\
+$\frac{(O-E)^2}{E}$ & 2.5 & 0.4 & 0.1 & 0.4 & 0 & 10 & \textbf{13.4} \\
 \bottomrule
 \end{tabular}
 \end{center}
+\zhint{注意：6出现了20次，远超预期，是主要偏差来源}
 
 \begin{lstlisting}
 from scipy.stats import chisquare
@@ -228,39 +256,40 @@ print(chi2, " ", pvalue)
 
 \textbf{Decision} ($df=5$, $\chi^2 = 13.4$):
 \begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
-    \item 95\%: $13.4 > 11.070 \Rightarrow$ \textbf{Reject $H_0$} (die is biased)
-    \item 99\%: $13.4 < 15.086 \Rightarrow$ Cannot reject $H_0$
+    \item 95\%: $13.4 > 11.07 \Rightarrow$ \textbf{Reject $H_0$} \zhint{(骰子不公平!)}
+    \item 99\%: $13.4 < 15.09 \Rightarrow$ Cannot reject \zhint{(没法下结论)}
 \end{itemize}
+\zhint{同样的数据，标准不同结论就不同，这就是$\alpha$的意义}
 
 % ============================================================
-\section{Wilcoxon Rank-Sum Test}
+\section{Wilcoxon Rank-Sum Test \zhint{(秩和检验)}}
 \small{(Mann--Whitney U Test)}
 % ============================================================
 
-Non-parametric alternative to the two-sample t-test for \textbf{independent} samples.
+\zhint{适用场景：两组独立数据的比较，数据不需要正态分布（t检验的替代品）}
 
-\subsection{Hypotheses \& Assumptions}
+\subsection{Key Idea \zhint{(核心思想)}}
 \begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
-    \item $H_0$: $P(X > Y) = P(Y > X)$
-    \item Observations are independent
-    \item Under $H_0$, distributions of both populations are equal
+    \item $H_0$: $P(X > Y) = P(Y > X)$ \zhint{(两组没差别)}
+    \item Both groups must be independent \zhint{(两组互相独立)}
 \end{itemize}
+\zhint{如果两组没差别，混合排名后两组的排名应该差不多}
 
-\subsection{Procedure}
+\subsection{Steps \zhint{(步骤)}}
 \begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
-    \item Rank all data from both groups (ascending); average ties
-    \item $T$ = sum of ranks of one group
-    \item $U = T - \frac{n(n+1)}{2}$, \quad $n$ = group size
-    \item Normal approx: $\mu_U = \frac{n_1 n_2}{2}$, \; $\sigma_U = \sqrt{\frac{n_1 n_2 (n_1+n_2+1)}{12}}$
-    \item $z = \frac{U - \mu_U}{\sigma_U}$, evaluate $p$-value
+    \item Mix both groups, rank ascending \zhint{(混一起从小到大排名)}\\
+    \zhint{相同值取排名的平均}
+    \item $T$ = sum of ranks of one group \zhint{(一组的排名加起来)}
+    \item $U = T - \frac{n(n+1)}{2}$ \zhint{(算U统计量)}
+    \item $\mu_U = \frac{n_1 n_2}{2}$, \; $\sigma_U = \sqrt{\frac{n_1 n_2 (n_1+n_2+1)}{12}}$
+    \item $z = \frac{U - \mu_U}{\sigma_U}$ $\to$ get $p$-value
 \end{enumerate}
 
 \subsection{Example}
 $X$ (15 values), $Y$ (14 values):\\
-$U_X = 272 - \frac{15 \times 16}{2} = 152$, \quad $U_Y = 58$\\
-$\mu_U = 105$, \; $\sigma_U = 56.125$\\
-$z = \frac{152 - 105}{56.125} = 0.837$, \; $p = 0.040$\\
-Cannot reject $H_0$ at 99\% level.
+$U_X = 152$, $\mu_U = 105$, $\sigma_U = 56.13$\\
+$z = 0.837$, $p = 0.040$\\
+\zhint{在99\%水平下不能拒绝$H_0$，没法说两组有差别}
 
 \begin{lstlisting}
 from scipy.stats import ranksums, mannwhitneyu
@@ -271,35 +300,39 @@ X = np.array([3.99, 3.79, 3.60, 3.73, 3.21,
 Y = np.array([3.18, 2.84, 2.90, 3.27, 3.85,
     3.52, 3.23, 2.76, 3.60, 3.75,
     3.59, 3.63, 2.38, 2.34])
+
+# Method 1: ranksums
 U, pvalue = ranksums(X, Y)
-print(U, pvalue)
-# 2.0512  0.04024
+print(U, pvalue)  # 2.05  0.0402
 
-statistic, pvalue = mannwhitneyu(X, Y)
-print(statistic, pvalue)
-# 152.0  0.04231
+# Method 2: mannwhitneyu
+stat, pvalue = mannwhitneyu(X, Y)
+print(stat, pvalue)  # 152.0  0.0423
 \end{lstlisting}
+\zhint{两个函数结果略不同但结论一致}
 
 % ============================================================
-\section{Wilcoxon Signed-Rank Test}
+\section{Wilcoxon Signed-Rank Test \zhint{(符号秩检验)}}
 % ============================================================
 
-Non-parametric alternative to the \textbf{paired} t-test for \textbf{dependent} samples.
+\zhint{适用场景：配对数据（同一组人的前后对比），数据不需要正态分布（配对t检验的替代品）}
 
-\subsection{Hypotheses \& Assumptions}
+\subsection{Key Idea \zhint{(核心思想)}}
 \begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
-    \item $H_0$: two dependent samples come from same distribution
-    \item Data are paired, each pair chosen randomly and independently
+    \item $H_0$: paired samples come from same distribution\\
+    \zhint{两组配对数据来自相同分布（处理没效果）}
+    \item Data must be paired \zhint{(数据必须配对，比如同一个人的前/后)}
 \end{itemize}
+\zhint{如果处理没效果，正的差值和负的差值应该差不多抵消}
 
-\subsection{Procedure}
+\subsection{Steps \zhint{(步骤)}}
 \begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
-    \item Compute differences $d_i = x_i - y_i$
-    \item Exclude pairs where $d_i = 0$
-    \item Rank by $|d_i|$ (ascending); average ties
-    \item $W = \sum \text{signed ranks}$
+    \item $d_i = x_i - y_i$ \zhint{(算每对的差值)}
+    \item Drop pairs where $d_i = 0$ \zhint{(差为0的扔掉)}
+    \item Rank by $|d_i|$ ascending \zhint{(按差值绝对值排名)}
+    \item $W = \sum$ signed ranks \zhint{(加上正负号的排名求和)}
     \item $\sigma_W = \sqrt{\frac{n(n+1)(2n+1)}{6}}$
-    \item Test stat: $t = \frac{W}{\sigma_W}$, evaluate with $t$-distribution ($df = n-1$)
+    \item $t = W / \sigma_W$, use $t$-dist ($df = n-1$)
 \end{enumerate}
 
 \subsection{Example}
@@ -323,9 +356,8 @@ $X$ & $Y$ & $X-Y$ & Rank \\
 \end{tabular}
 \end{center}
 
-$W = 46$, \; $\sigma_W = 19.62$, \; $df = 9$\\
-$P(|t_9| > 46/19.62) = 0.0438$\\
-Cannot reject $H_0$ at 99\% level.
+$W = 46$, $\sigma_W = 19.62$, $df = 9$, $p = 0.0438$\\
+\zhint{在99\%水平下不能拒绝$H_0$}
 
 \begin{lstlisting}
 from scipy.stats import wilcoxon
@@ -335,42 +367,42 @@ X = np.array([6.1, 7.0, 8.2, 7.6, 6.5,
 Y = np.array([5.2, 7.9, 3.9, 4.7, 5.3,
               5.4, 4.2, 6.1, 3.8, 6.3])
 T, pvalue = wilcoxon(X, Y)
-print(T, pvalue)
-# 5.0  0.01953
+print(T, pvalue)  # 5.0  0.01953
 \end{lstlisting}
-
-\textbf{Note}: Python \texttt{wilcoxon()} uses T-statistic (min of positive/negative rank sums), which differs from hand-calculated W-statistic.
+\zhint{注意：Python用T统计量（正/负秩和的较小值），和手算W不同，但结论一致}
 
 % ============================================================
-\section{Quick Reference: Which Test?}
+\section{Quick Reference \zhint{(速查表：用哪个检验？)}}
 % ============================================================
 
 \begin{center}
 \small
 \begin{tabular}{lp{4.2cm}}
 \toprule
-\textbf{Test} & \textbf{When to Use} \\
+\textbf{Test} & \textbf{When to Use} \zhint{(什么时候用)} \\
 \midrule
-Fisher's Exact & 2$\times$2 table, small sample, binary vars \\
-$\chi^2$ Test & Multi-category frequency comparison \\
-Rank-Sum (U) & 2 independent groups, non-normal data \\
-Signed-Rank & Paired data, non-normal data \\
+Fisher's Exact & 2$\times$2 table, small $n$, binary \zhint{(小样本，是/否变量)} \\
+$\chi^2$ Test & Multi-category frequency \zhint{(多类别频率比较)} \\
+Rank-Sum (U) & 2 independent groups, non-normal \zhint{(两组独立数据)} \\
+Signed-Rank & Paired data, non-normal \zhint{(配对数据)} \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \keybox{
-\textbf{Core logic}: Compute statistic $\rightarrow$ get $p$-value $\rightarrow$ if $p < \alpha$, reject $H_0$ $\rightarrow$ result is statistically significant.
+\textbf{Core logic} \zhint{(核心套路)}:\\
+Compute statistic $\to$ get $p$-value $\to$ if $p < \alpha$, reject $H_0$\\
+\zhint{算统计量 $\to$ 得到p值 $\to$ p值$<\alpha$就拒绝零假设 $\to$ 结果不是巧合!}
 }
 
-\subsection{Other Tests (For Reference)}
+\subsection{Other Tests \zhint{(其他检验，了解即可)}}
 \begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
-    \item \textbf{t-test / Paired t-test}: compare two vars from same population
-    \item \textbf{ANOVA}: extension of t-test for multiple groups
-    \item \textbf{Correlation}: linear relationship between two vars
-    \item \textbf{Regression}: predict unknown from known vars
-    \item \textbf{Non-parametric tests}: no distribution assumptions
+    \item \textbf{t-test} \zhint{(t检验)}: compare two groups (need normal data)
+    \item \textbf{ANOVA} \zhint{(方差分析)}: compare $>$2 groups
+    \item \textbf{Correlation} \zhint{(相关分析)}: are two variables linearly related?
+    \item \textbf{Regression} \zhint{(回归)}: predict Y from X
 \end{itemize}
 
 \end{multicols}
+\end{CJK}
 \end{document}
