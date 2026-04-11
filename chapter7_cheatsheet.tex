@@ -1,0 +1,359 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 7 -- Data Modeling II}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{Clustering Overview}
+\zhint{聚类：无监督学习，把相似的数据分到同一组，没有标签}
+
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item Find groupings where data in each group is similar
+\item Unsupervised -- no labels needed
+\item Uses: basket analysis, news clustering, social network communities, dimensionality reduction
+\end{itemize}
+
+\textbf{Top 3 Algorithms}: K-Means, Agglomerative, Spectral
+
+% ==================== SECTION 2 ====================
+\section{K-Means Clustering}
+\zhint{K-Means：指定K个簇，迭代移动中心点直到收敛}
+
+\subsection{Algorithm}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item Initialize k centroids (random guesses)
+\item Assign each point to nearest centroid
+\item Recalculate centroid = mean of cluster
+\item Repeat 2--3 until no change
+\end{enumerate}
+\textbf{Parameters}: \texttt{k} (num clusters), \texttt{n\_init} (num initializations)
+
+\subsection{Code: K-Means}
+\begin{lstlisting}
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import make_blobs
+from sklearn.metrics import silhouette_score
+feat, true_labels = make_blobs(
+  n_samples=200, centers=3,
+  cluster_std=2.75, random_state=42)
+scaler = StandardScaler()
+scaled = scaler.fit_transform(feat)
+kmeans = KMeans(init="random", n_clusters=3,
+  n_init=10, max_iter=300, random_state=42)
+kmeans.fit(scaled)
+print("SSE:", kmeans.inertia_)
+print("Centroids:", kmeans.cluster_centers_)
+print("Labels:", kmeans.labels_[:5])
+\end{lstlisting}
+\zhint{inertia\_=SSE(越小越好); cluster\_centers\_=中心点坐标}
+
+\subsection{Elbow Method -- Find Best k}
+\zhint{肘部法则：SSE随k下降，拐点处就是最佳k}
+\begin{lstlisting}
+from kneed import KneeLocator
+sse = []
+for k in range(1, 11):
+  km = KMeans(n_clusters=k, init="random",
+    n_init=10, max_iter=300, random_state=42)
+  km.fit(scaled)
+  sse.append(km.inertia_)
+# Plot SSE vs k, find elbow
+kl = KneeLocator(range(1,11), sse,
+  curve="convex", direction="decreasing")
+print(kl.elbow)  # e.g. 3
+\end{lstlisting}
+
+% ==================== SECTION 3 ====================
+\section{Agglomerative Clustering}
+\zhint{层次聚类(自底向上)：每个点是一个簇，逐步合并最近的两个}
+
+\subsection{Algorithm}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item Start: each point = one cluster
+\item Find two closest clusters, merge them
+\item Update proximity matrix
+\item Repeat until all merged into one cluster
+\end{enumerate}
+
+\textbf{Linkage types}: \zhint{计算簇间距离的方式}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Single}: min distance between clusters
+\item \textbf{Complete}: max distance between clusters
+\item \textbf{Average}: mean distance between clusters
+\item \textbf{Ward}: minimize error sum of squares \zhint{最常用}
+\end{itemize}
+
+\subsection{Code: Agglomerative Clustering}
+\begin{lstlisting}
+from sklearn import cluster
+from sklearn.neighbors import kneighbors_graph
+# Ward linkage on Gaussian blobs
+hc = cluster.AgglomerativeClustering(
+  n_clusters=4, metric='euclidean',
+  linkage='ward').fit_predict(dataset1)
+# With connectivity constraints
+connect = kneighbors_graph(
+  dataset2, n_neighbors=5, include_self=False)
+hc_conn = cluster.AgglomerativeClustering(
+  n_clusters=2, metric='euclidean',
+  linkage='complete',
+  connectivity=connect).fit_predict(dataset2)
+\end{lstlisting}
+\zhint{connectivity=限制只能合并相邻的点，适合非球形簇}
+
+% ==================== SECTION 4 ====================
+\section{Spectral Clustering}
+\zhint{谱聚类：用相似度矩阵的特征值降维后再聚类，适合复杂形状}
+
+\subsection{Algorithm}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item Build distance matrix $\to$ affinity matrix A
+\item Compute degree matrix D, Laplacian L = D -- A
+\item Find eigenvalues/eigenvectors of L
+\item Use top k eigenvectors as new features
+\item Apply K-Means in this new space
+\end{enumerate}
+
+\subsection{Code: Spectral Clustering}
+\begin{lstlisting}
+from sklearn.cluster import SpectralClustering
+from sklearn.datasets import make_blobs
+from numpy import random
+random.seed(1)
+x, _ = make_blobs(n_samples=400,
+  centers=4, cluster_std=1.5)
+sc = SpectralClustering(n_clusters=4).fit(x)
+labels = sc.labels_
+# Try different cluster numbers
+for i in range(2, 6):
+  sc = SpectralClustering(n_clusters=i).fit(x)
+  plt.scatter(x[:,0],x[:,1],s=5,c=sc.labels_)
+\end{lstlisting}
+\zhint{默认affinity='rbf'; assign\_labels='kmeans'}
+
+% ==================== SECTION 5 ====================
+\section{Clustering Evaluation Metrics}
+\zhint{聚类没有标签，用内部指标评估簇的质量}
+
+\subsection{1. Silhouette Score}
+\zhint{轮廓系数：衡量簇内紧密+簇间分离，范围[-1,1]，越大越好}\\
+$s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}$\\
+\textbf{a(i)}: avg distance to points in same cluster \zhint{越小越好}\\
+\textbf{b(i)}: avg distance to nearest other cluster \zhint{越大越好}
+
+\begin{lstlisting}
+from sklearn.metrics import silhouette_score
+km = KMeans(n_clusters=3, init='k-means++',
+  max_iter=300, n_init=10, random_state=0)
+km.fit_predict(X)
+score = silhouette_score(X, km.labels_,
+  metric='euclidean')
+print('Silhouette:', score)  # e.g. 0.553
+# Visualize with yellowbrick
+from yellowbrick.cluster import SilhouetteVisualizer
+vis = SilhouetteVisualizer(km,colors='yellowbrick')
+vis.fit(X)
+\end{lstlisting}
+\zhint{图中宽度=簇质量，高度=簇大小}
+
+\subsection{2. Calinski-Harabasz Index}
+\zhint{CH指数：簇间离散度/簇内离散度，越大越好}\\
+$CH = \frac{B_k / (K-1)}{W_k / (N-K)}$\\
+$B_k$: between-cluster dispersion; $W_k$: within-cluster.
+
+\begin{lstlisting}
+from sklearn import metrics
+labels = kmeans.labels_
+ch = metrics.calinski_harabasz_score(X, labels)
+print(ch)  # e.g. 561.63, higher=better
+\end{lstlisting}
+
+\subsection{3. Davies-Bouldin Index}
+\zhint{DB指数：簇内散度与簇间距离之比，越小越好}\\
+$R_{i,j} = \frac{S_i + S_j}{M_{i,j}}$, \quad $DB = \frac{1}{K}\sum \max_{j \neq i} R_{i,j}$
+
+\begin{lstlisting}
+from sklearn.metrics import davies_bouldin_score
+db = davies_bouldin_score(X, labels)
+print(db)  # e.g. 0.768, lower=better
+# Compare different k values
+for i in range(2, 11):
+  km = KMeans(n_clusters=i, random_state=30)
+  labels = km.fit_predict(X)
+  print(i, davies_bouldin_score(X, labels))
+\end{lstlisting}
+
+\keybox{
+\textbf{Metric Summary}:\\
+\textbf{Silhouette}: $[-1, 1]$, \textbf{higher} = better \zhint{轮廓系数}\\
+\textbf{Calinski-Harabasz}: $[0, \infty)$, \textbf{higher} = better \zhint{CH指数}\\
+\textbf{Davies-Bouldin}: $[0, \infty)$, \textbf{lower} = better \zhint{DB指数}
+}
+
+% ==================== SECTION 6 ====================
+\section{Reinforcement Learning (RL)}
+\zhint{强化学习：智能体在环境中通过试错获得奖励来学习策略}
+
+\subsection{Key Concepts}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Agent}: the learner / decision maker \zhint{智能体}
+\item \textbf{Environment}: what agent interacts with \zhint{环境}
+\item \textbf{State} $s$: current situation \zhint{状态}
+\item \textbf{Action} $a$: what agent can do \zhint{动作}
+\item \textbf{Reward} $r$: feedback signal \zhint{奖励}
+\item \textbf{Episode}: sequence of steps from start to end \zhint{一局游戏}
+\item \textbf{Policy} $\pi(s) = a$: strategy for choosing actions \zhint{策略}
+\end{itemize}
+
+\textbf{Environment types}:\\
+Discrete (grid, board game) vs Continuous (real world)\\
+\zhint{离散环境=有限选择; 连续环境=无限可能}
+
+\subsection{Exploration vs Exploitation}
+\zhint{探索=尝试新动作; 利用=用已知最优动作}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Exploration}: try new actions (may find better) \zhint{探索}
+\item \textbf{Exploitation}: use known best action \zhint{利用}
+\item \textbf{$\varepsilon$-greedy}: with prob $\varepsilon$ explore randomly, else exploit
+\item \textbf{Boltzmann}: explore more when getting negative rewards
+\end{itemize}
+
+\subsection{Q-Learning}
+\zhint{Q-Learning：用Q表存储每个(状态,动作)的价值}\\
+\textbf{Q-Table}: rows = states, cols = actions, values = expected future rewards.\\[2pt]
+\textbf{Update formula}:\\
+$Q(S,A) \leftarrow Q(S,A) + \alpha\big[R + \gamma \max_{A'} Q(S',A') - Q(S,A)\big]$\\[2pt]
+$\alpha$ = learning rate, $\gamma$ = discount factor, $R$ = reward.\\
+\zhint{当前Q值 + 学习率 $\times$ (实际回报 - 当前估计)}
+
+\subsection{Code: Q-Learning Agent (Tic-Tac-Toe)}
+\begin{lstlisting}
+class QLearningAgent:
+  def __init__(self, alpha=0.1, gamma=0.9,
+               epsilon=0.1):
+    self.q_table = defaultdict(
+      lambda: np.zeros(9))
+    self.alpha = alpha    # learning rate
+    self.gamma = gamma    # discount factor
+    self.epsilon = epsilon # exploration rate
+
+  def get_action(self, state, available):
+    state_key = self._state_to_key(state)
+    if random.random() < self.epsilon:
+      return random.choice(available) # Explore
+    else:
+      q = self.q_table[state_key]     # Exploit
+      avail_q = {m: q[m] for m in available}
+      return max(avail_q, key=avail_q.get)
+
+  def update_q_value(self, state, action,
+                     reward, next_state,
+                     next_avail):
+    sk = self._state_to_key(state)
+    nk = self._state_to_key(next_state)
+    cur_q = self.q_table[sk][action]
+    if next_avail:
+      max_nq = max(self.q_table[nk][m]
+                   for m in next_avail)
+    else:
+      max_nq = 0  # game over
+    # Q-learning formula
+    new_q = (1-self.alpha)*cur_q + \
+      self.alpha*(reward+self.gamma*max_nq)
+    self.q_table[sk][action] = new_q
+\end{lstlisting}
+
+\subsection{RL Algorithm Categories}
+\zhint{RL算法分类}
+
+\textbf{1. Model-Free vs Model-Based}:
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Model-Free}: learn policy directly (Q-Learning, DQN, Policy Gradient) \zhint{不建环境模型}
+\item \textbf{Model-Based}: learn environment dynamics (AlphaZero, Dyna-Q) \zhint{先学环境再规划}
+\end{itemize}
+
+\textbf{2. Value vs Policy vs Actor-Critic}:
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Value-Based}: learn V(s) or Q(s,a), derive policy (Q-Learning, DQN) \zhint{学价值函数}
+\item \textbf{Policy-Based}: directly learn $\pi(a|s)$ (REINFORCE) \zhint{直接学策略}
+\item \textbf{Actor-Critic}: hybrid of both (PPO) \zhint{结合两者}
+\end{itemize}
+
+\subsection{RL Evaluation}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item Win rate change during training \zhint{训练过程中胜率变化}
+\item Win rate vs random agent in testing \zhint{测试时对随机agent的胜率}
+\item Number of different moves explored (Q-Table size) \zhint{Q表中探索的状态数}
+\item Feedback from skilled opponents \zhint{专家评价}
+\end{enumerate}
+
+\end{multicols}
+\end{CJK}
+\end{document}
