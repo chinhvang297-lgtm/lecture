@@ -1,0 +1,323 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 9 -- Case Studies (I): Business Problems}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{Business Analytics Overview}
+\zhint{商业分析：用数据驱动商业决策}
+
+\textbf{BA vs DS}: BA focuses on business decisions with structured data; DS uncovers patterns with any data using advanced algorithms.\\
+\zhint{BA偏商业决策; DS偏算法和模式发现}\\
+\textbf{Importance}: informed decisions, improved efficiency, increased revenue, reduced risk.
+
+% ==================== SECTION 2 ====================
+\section{Recommender Systems}
+\zhint{推荐系统：根据用户行为推荐物品（Amazon/Netflix/Spotify）}
+
+\subsection{1st Gen: Basic Approaches}
+
+\textbf{Collaborative Filtering} \zhint{协同过滤：基于用户-物品交互}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{User-based}: find similar users, recommend their items
+\item \textbf{Item-based}: find similar items, recommend unwatched ones
+\end{itemize}
+\begin{lstlisting}
+from sklearn.metrics.pairwise import cosine_similarity
+# User-based CF
+user_sim = cosine_similarity(user_item)
+sim_users = np.argsort(
+  user_sim[user_id-1])[::-1][1:11]
+# Item-based CF
+item_sim = cosine_similarity(user_item.T)
+\end{lstlisting}
+
+\textbf{Content-based}: recommend by item features (TF-IDF on genres).\\
+\zhint{基于内容：分析物品特征，推荐相似物品}\\
+\textbf{Knowledge-based}: rules/constraints (keywords, same company).\\
+\zhint{基于知识：用规则约束推荐}
+
+\textbf{Limitations}: cold start (new user/item), over-specialization.\\
+\zhint{冷启动问题：新用户/物品没有历史数据}
+
+\subsection{2nd Gen: Hybrid \& Matrix Factorization}
+
+\textbf{Hybrid}: combine multiple methods.\\
+\zhint{混合推荐：结合多种方法}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Weighted}: $0.4\times CF + 0.3\times Content + 0.3\times KB$
+\item \textbf{Switching}: CF for old users, content for new users
+\item \textbf{Cascade}: CF creates candidates, content re-ranks
+\end{itemize}
+
+\textbf{Matrix Factorization}: decompose R $\approx$ P $\times$ Q$^T$\\
+\zhint{矩阵分解：把用户-物品评分矩阵分解为两个低秩矩阵}\\
+R = rating matrix, P = user factors, Q = item factors.\\
+$\hat{r}_{ui} = \mathbf{p}_u \cdot \mathbf{q}_i$, optimize via gradient descent.
+
+\begin{lstlisting}
+def matrix_factorization(R, k, steps=5000,
+                         alpha=0.0002, beta=0.02):
+  P = np.random.normal(scale=1./k,size=(m,k))
+  Q = np.random.normal(scale=1./k,size=(n,k))
+  for step in range(steps):
+    for u in range(m):
+      for i in range(n):
+        if R[u,i] > 0:
+          error = R[u,i] - np.dot(P[u,:],Q[i,:])
+          P[u,:] += alpha*(2*error*Q[i,:]-beta*P[u,:])
+          Q[i,:] += alpha*(2*error*P[u,:]-beta*Q[i,:])
+  return P, Q
+# Or use sklearn TruncatedSVD
+from sklearn.decomposition import TruncatedSVD
+svd = TruncatedSVD(n_components=50)
+user_factors = svd.fit_transform(user_item)
+item_factors = svd.components_
+\end{lstlisting}
+
+\subsection{3rd Gen: Deep Learning}
+
+\textbf{DeepCoNN}: two parallel CNNs on user/item reviews $\to$ embeddings $\to$ rating prediction.\\
+\zhint{DeepCoNN：用评论文本的CNN特征做推荐}
+
+\textbf{Wide \& Deep}: Wide (linear, memorization) + Deep (NN, generalization). Joint training.\\
+\zhint{Wide\&Deep：宽模型记忆特征交叉 + 深模型泛化新组合}
+
+\begin{lstlisting}
+class WideDeep(nn.Module):
+  def __init__(self, n_users, n_movies, ...):
+    self.wide = nn.Linear(20, wide_dim)
+    self.user_emb = nn.Embedding(n_users,emb_sz)
+    self.movie_emb = nn.Embedding(n_movies,emb_sz)
+    self.deep = nn.Sequential(...)
+    self.final = nn.Linear(wide_dim+1, 1)
+\end{lstlisting}
+
+\textbf{GCN} (Graph Convolutional Network):\\
+\zhint{图卷积网络：在图结构(社交网络)上做卷积，学习节点嵌入}\\
+Semi-supervised on graph data. Aggregate neighbor features.
+\begin{lstlisting}
+from torch_geometric.nn import GCNConv
+class GCN(torch.nn.Module):
+  def __init__(self, in_ch, hid_ch, out_ch):
+    self.conv1 = GCNConv(in_ch, hid_ch)
+    self.conv2 = GCNConv(hid_ch, out_ch)
+  def forward(self, x, edge_index):
+    x = self.conv1(x, edge_index).relu()
+    x = self.conv2(x, edge_index)
+    return x
+\end{lstlisting}
+
+\textbf{RecSys Evaluation}: CTR, conversion rate, retention rate, NPS.
+
+% ==================== SECTION 3 ====================
+\section{Stock Market Prediction}
+\zhint{股票预测：用历史数据预测未来趋势（很难！）}
+
+\textbf{Why difficult}: black swans, market psychology, reflexivity, overfitting.
+
+\subsection{Data: yfinance API}
+\begin{lstlisting}
+import yfinance as yf
+ticker = yf.Ticker("AAPL")
+data = ticker.history(period="1y")  # OHLCV
+# Multiple tickers
+multi = yf.download(["AAPL","MSFT"],
+  start="2024-01-01", end="2024-10-18")
+# Company info
+info = ticker.info  # name, sector, marketCap
+# Financials
+ticker.financials; ticker.balance_sheet
+ticker.dividends; ticker.recommendations
+\end{lstlisting}
+\zhint{OHLCV = Open/High/Low/Close/Volume}
+
+\subsection{Time Series Data Split}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Holdout}: train on past, test on future \zhint{简单划分}
+\item \textbf{Rolling Window CV}: sliding window forward in time \zhint{滚动窗口交叉验证}
+\end{itemize}
+
+\subsection{EMA (Exponential Moving Average)}
+\zhint{指数移动平均：近期价格权重更大}\\
+SMA = mean of last n prices; EMA = weighted, recent prices matter more.\\
+\textbf{Limitation}: lagging indicator, assumes trend continues.
+
+\subsection{RNN \& LSTM}
+\zhint{RNN：循环神经网络，处理序列数据; LSTM：解决梯度消失}
+
+\textbf{RNN}: $h_t = f_W(h_{t-1}, x_t)$ \zhint{用上一时刻隐状态+当前输入}\\
+\textbf{LSTM}: adds gates to control information flow.
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Forget gate}: what to discard from memory \zhint{遗忘门}
+\item \textbf{Input gate}: what new info to store \zhint{输入门}
+\item \textbf{Output gate}: what to output \zhint{输出门}
+\item \textbf{Cell state}: long-term memory vector \zhint{细胞状态=长期记忆}
+\end{itemize}
+
+\begin{lstlisting}
+# Simple PyTorch LSTM
+rnn = nn.LSTM(10, 20, 2) # in=10,hid=20,layers=2
+input = torch.randn(5, 3, 10) # seq,batch,feat
+h0 = torch.randn(2, 3, 20)
+c0 = torch.randn(2, 3, 20)
+output, (hn, cn) = rnn(input, (h0, c0))
+\end{lstlisting}
+
+\begin{lstlisting}
+class StockLSTM(nn.Module):
+  def __init__(self, input_size=5,
+               hidden_size=50, num_layers=2):
+    super().__init__()
+    self.lstm = nn.LSTM(input_size, hidden_size,
+      num_layers, batch_first=True, dropout=0.2)
+    self.fc1 = nn.Linear(hidden_size, 25)
+    self.fc2 = nn.Linear(25, 1)
+    self.relu = nn.ReLU()
+    self.dropout = nn.Dropout(0.2)
+  def forward(self, x):
+    out, _ = self.lstm(x)
+    out = self.dropout(
+      self.relu(self.fc1(out[:,-1,:])))
+    return self.fc2(out)
+\end{lstlisting}
+\zhint{输入：30天滑动窗口的OHLCV数据}
+
+% ==================== SECTION 4 ====================
+\section{Investment Strategies}
+\zhint{投资策略：系统化的投资决策方案}
+
+\subsection{Non-ML Strategies}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Active}: try to beat market (growth/value investing)
+\item \textbf{Passive}: match market returns (index funds, buy\&hold)
+\item \textbf{Value}: buy undervalued stocks (Warren Buffett)
+\item \textbf{DCA}: invest fixed amount at regular intervals \zhint{定投}
+\end{itemize}
+
+\subsection{ML Investment Strategies}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Directional}: predict up/down (binary classification)\\
+\zhint{方向预测：涨=1，跌=0}
+\item \textbf{Return Prediction}: predict \% gain over N days\\
+\zhint{收益预测：预测未来N天回报率}
+\item \textbf{Volatility Prediction}: predict price fluctuation\\
+\zhint{波动率预测：预测价格波动程度}
+\item \textbf{Portfolio Optimization}: optimal asset allocation\\
+\zhint{组合优化：最优资产配置权重}
+\end{enumerate}
+
+\subsection{Financial Metrics}
+\zhint{金融评估指标}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Total Return} = $\frac{\text{End} - \text{Begin} + \text{Div}}{\text{Begin}} \times 100\%$
+\item \textbf{Sharpe Ratio} = $\frac{R_p - R_f}{\sigma_p}$ \zhint{风险调整回报，越高越好}
+\item \textbf{Max Drawdown} = $\frac{\text{Trough} - \text{Peak}}{\text{Peak}}$ \zhint{最大回撤}
+\item \textbf{Sortino Ratio} = $\frac{R_p - R_t}{\text{Downside Dev}}$ \zhint{只看下行风险}
+\end{itemize}
+
+% ==================== SECTION 5 ====================
+\section{DQN for Trading}
+\zhint{深度Q网络：用神经网络替代Q表，处理大状态空间}
+
+\textbf{RL for trading}: Agent=trader, Env=market, State=prices+portfolio, Action=buy/sell/hold, Reward=profit.
+
+\begin{lstlisting}
+class DQN(nn.Module):
+  def __init__(self, state_size=31,
+               action_size=3): # hold/buy/sell
+    super().__init__()
+    self.fc1 = nn.Linear(state_size, 64)
+    self.fc2 = nn.Linear(64, 64)
+    self.fc3 = nn.Linear(64, action_size)
+  def forward(self, x):
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+    return self.fc3(x)
+\end{lstlisting}
+
+\textbf{Key components}:
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Replay Memory}: store (s,a,r,s') experiences \zhint{经验回放}
+\item \textbf{Target Network}: separate network for stability \zhint{目标网络}
+\item \textbf{$\varepsilon$-greedy}: explore$\to$exploit, decay $\varepsilon$ over time
+\end{itemize}
+
+\textbf{Training loop}: observe $\to$ act $\to$ reward $\to$ new state $\to$ update Q.
+
+\keybox{
+\textbf{Key Models in Ch9}:\\
+\textbf{RecSys}: CF, Content, Hybrid, MF/SVD, DeepCoNN, Wide\&Deep, GCN\\
+\textbf{Stock}: EMA, LSTM (sliding window), DQN\\
+\textbf{Caveat}: ``If it really makes money, it won't be published.'' \zhint{能赚钱的模型不会发表的}
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}
