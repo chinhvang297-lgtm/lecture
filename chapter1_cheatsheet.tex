@@ -1,0 +1,360 @@
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.8cm, bottom=0.8cm, left=0.8cm, right=0.8cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlength{\columnsep}{8pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=3pt,
+    belowskip=3pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+% Custom box for key concepts
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+% Chinese hint style (gray, smaller)
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+    {\large\bfseries IERG4320/IEMS5726 --- Chapter 1: Course Introduction --- Cheat Sheet}\\[2pt]
+    {\small Prof.\ YAN Wenjing, Dr.\ Danny Yip \quad|\quad Department of Information Engineering, CUHK}
+\end{center}
+
+\vspace{2pt}
+\begin{multicols}{3}
+
+% ============================================================
+\section{Course Overview \zhint{(课程概览)}}
+% ============================================================
+
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Lecture}: Wed 7:00--10:00 pm @ LSB LT6 (12 lectures)
+    \item \textbf{Final Exam}: 15 Apr, ERB 1004, open book/note, close internet
+\end{itemize}
+
+\subsection{Assessment \zhint{(评分占比)}}
+\begin{tabular}{ll}
+UReply attendance \zhint{(签到)} & 5\% \\
+4 Assignments \zhint{(作业)} & 35\% \\
+Course project \zhint{(项目, 截止5/8)} & 20\% \\
+Final exam \zhint{(期末, 开卷)} & 40\% \\
+\end{tabular}
+
+\subsection{Fail Conditions \zhint{(挂科条件)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Final exam below 30\% \zhint{(期末低于30分)}
+    \item Grand total below 40\% \zhint{(总分低于40分)}
+    \item Not submitting course project \zhint{(不交项目直接挂)}
+\end{itemize}
+
+\subsection{AI Tool Policy \zhint{(AI工具政策)}}
+ChatGPT/DeepSeek/Gemini \textbf{allowed} for coursework, but \textbf{NOT} for final exam.\\
+\zhint{作业可以用AI，但必须注明哪些部分用了AI；期末考试不能用。}
+
+% ============================================================
+\section{Key Terminology \zhint{(核心术语)}}
+% ============================================================
+
+\subsection{Data-related Terms \zhint{(数据相关)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Database} \zhint{(数据库)}: organized data collection\\
+    \zhint{就是把数据整整齐齐存起来，方便查找}
+    \item \textbf{Data Analysis} \zhint{(数据分析)}: get knowledge from data\\
+    \zhint{从数据里挖出有用的信息}
+    \item \textbf{Data Mining} \zhint{(数据挖掘)}: find patterns in \emph{large} datasets\\
+    \zhint{在海量数据中找隐藏的规律}
+    \item \textbf{Big Data} \zhint{(大数据)}: dealing with huge, complex data\\
+    \zhint{数据量大到普通方法处理不了，需要专门技术}
+\end{itemize}
+
+\subsection{AI / ML / DL \zhint{(三者关系)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{AI} \zhint{(人工智能)}: machines that can think/act smart\\
+    \zhint{让机器表现出类似人类的智能行为}
+    \item \textbf{ML} \zhint{(机器学习)}: machines learn from data, no need to hard-code rules\\
+    \zhint{不用写死规则，让机器自己从数据中学习；是AI的子集}
+    \item \textbf{DL} \zhint{(深度学习)}: ML using deep neural networks (many layers)\\
+    \zhint{用多层神经网络来学习；是ML的子集}
+\end{itemize}
+
+\keybox{
+\textbf{Relationship}: AI $\supset$ ML $\supset$ DL\\
+\zhint{AI最大，ML在AI里面，DL在ML里面，像套娃一样}
+}
+
+\subsection{Roles \zhint{(数据科学三大岗位)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Data Scientist} \zhint{(数据科学家)}: turns data into insights \& decisions\\
+    \zhint{从数据中找出有价值的结论，帮助决策}
+    \item \textbf{ML Engineer} \zhint{(机器学习工程师)}: builds ML models into real apps\\
+    \zhint{把模型落地，做成能用的产品}
+    \item \textbf{Data Engineer} \zhint{(数据工程师)}: builds data pipelines \& infrastructure\\
+    \zhint{搭数据管道，保证数据能顺畅地收集、存储、流转}
+\end{itemize}
+
+% ============================================================
+\section{Data Science \zhint{(数据科学)}}
+% ============================================================
+
+\zhint{用科学方法从数据中提取知识和洞察，并应用到实际场景中。}
+
+\subsection{Data Science Lifecycle \zhint{(生命周期)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Data Acquisition} \zhint{(采集)} --- collect raw data
+    \item \textbf{Data Cleaning} \zhint{(清洗)} --- fix errors, remove noise
+    \item \textbf{Data Modeling} \zhint{(建模)} --- build models to find patterns
+    \item \textbf{Data Analysis} \zhint{(分析)} --- draw conclusions
+    \item \textbf{Data Visualization} \zhint{(可视化)} --- show results with charts
+\end{enumerate}
+
+\keybox{
+\zhint{简记：采集 $\to$ 清洗 $\to$ 建模 $\to$ 分析 $\to$ 可视化}
+}
+
+\subsection{Related Disciplines \zhint{(相关学科)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Computer Science \zhint{(计算机)} --- programming, databases
+    \item Statistics \zhint{(统计学)} --- interpret results
+    \item Domain knowledge \zhint{(领域知识)} --- depends on the problem
+\end{itemize}
+
+\subsection{Why Data Science Matters \zhint{(为啥重要)}}
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Cost efficient \zhint{(省钱)}
+    \item Better decision making \zhint{(帮助做更好的决策)}
+    \item Understand customers \zhint{(了解用户行为)}
+    \item Manage risks \zhint{(风险管理)}
+    \item Drive innovation \zhint{(推动创新)}
+\end{enumerate}
+
+% ============================================================
+\section{Classic Examples \zhint{(经典案例)}}
+% ============================================================
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{MNIST} \zhint{(手写数字识别)} --- one of the earliest ML systems\\
+    \zhint{给机器看手写的0--9，让它自动认出是哪个数字}
+    \item \textbf{Recommender Systems} \zhint{(推荐系统)} --- e.g.\ Netflix Prize\\
+    \zhint{根据你的观影历史，猜你还想看什么电影}
+    \item \textbf{Face Detection} \zhint{(人脸识别)} --- e.g.\ Microsoft Face API\\
+    \zhint{从照片/视频里找到人脸并认出是谁}
+    \item \textbf{Machine Translation} \zhint{(机器翻译)} --- e.g.\ Google Translate\\
+    \zhint{自动把一种语言翻译成另一种}
+    \item \textbf{Face Generator} \zhint{(人脸生成)} --- GANs\\
+    \zhint{AI凭空生成逼真的人脸照片}
+    \item \textbf{ChatGPT} \zhint{(聊天机器人)} --- NLP-powered chatbot\\
+    \zhint{能像人一样对话，写邮件、写代码}
+\end{enumerate}
+
+% ============================================================
+\section{Types of Data Analytics \zhint{(数据分析类型)}}
+% ============================================================
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=1pt]
+    \item \textbf{Predictive} \zhint{(预测型)}: ``What will happen next?''\\
+    \zhint{预测未来。例：明天要进多少巧克力冰淇淋？}
+    \item \textbf{Descriptive} \zhint{(描述型)}: ``What happened?''\\
+    \zhint{总结过去。例：上周最受欢迎的口味是什么？}
+    \item \textbf{Prescriptive} \zhint{(建议型)}: ``What should we do?''\\
+    \zhint{给建议。例：要不要提高巧克力冰淇淋的品质？}
+    \item \textbf{Diagnostic} \zhint{(诊断型)}: ``Why did it happen?''\\
+    \zhint{找原因。例：为什么巧克力和香草卖得最好？}
+\end{enumerate}
+
+% ============================================================
+\section{AI Ethics \& Governance \zhint{(AI伦理与监管)}}
+% ============================================================
+
+\subsection{EU AI Act \zhint{(欧盟AI法案)}}
+\zhint{全球第一部AI法规，按风险等级分类管理：}
+
+\begin{center}
+\scriptsize
+\begin{tabular}{lp{4.2cm}}
+\toprule
+\textbf{Risk} & \textbf{Examples / Rules} \\
+\midrule
+Unacceptable \zhint{(禁止)} & Social scoring, deceptive AI $\to$ \textbf{banned} \\
+High \zhint{(高风险)} & Medical AI, self-driving $\to$ strict review \\
+Limited \zhint{(有限风险)} & ChatGPT, deepfakes $\to$ must be transparent \\
+Minimal \zhint{(低风险)} & Spam filters, AI games $\to$ self-regulate \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{HK Ethical AI Framework \zhint{(香港AI伦理框架, 2024)}}
+\zhint{数字政策办公室发布，12条原则：}
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=0pt]
+    \item Transparency \zhint{(透明)}
+    \item Reliability \& Security \zhint{(可靠安全)}
+    \item Fairness \zhint{(公平，不歧视)}
+    \item Diversity \& Inclusion \zhint{(多元包容)}
+    \item Human Oversight \zhint{(人类监督)}
+    \item Lawfulness \zhint{(合法合规)}
+    \item Safety \zhint{(安全)}
+    \item Data Privacy \zhint{(数据隐私)}
+    \item Accountability \zhint{(问责)}
+    \item Beneficial AI \zhint{(有益于社会)}
+    \item Cooperation \zhint{(开放合作)}
+    \item Sustainability \zhint{(可持续发展)}
+\end{enumerate}
+
+\subsection{Mainland China \zhint{(中国大陆)}}
+\zhint{2023年8月起实施《生成式AI服务管理暂行办法》，基于《网络安全法》《数据安全法》《个人信息保护法》。}
+
+% ============================================================
+\section{Course Approach \zhint{(课程特点)}}
+% ============================================================
+
+\zhint{这门课不只是普通的ML入门课，还会覆盖：}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Data collection \& preprocessing \zhint{(数据收集与预处理)}
+    \item Data representation \zhint{(数据表示)}
+    \item Data visualization \zhint{(数据可视化)}
+    \item Domain-specific problems \zhint{(各领域实际问题)}
+\end{itemize}
+
+\textbf{Prerequisites} \zhint{(先修知识)}: Statistics, Linear Algebra, Calculus, Probability.\\
+\zhint{需要统计学、线性代数、微积分、概率论基础。}
+
+% ============================================================
+\section{Course Schedule \zhint{(课程安排)}}
+% ============================================================
+
+\begin{center}
+\scriptsize
+\begin{tabular}{clc}
+\toprule
+\# & Topic & Date \\
+\midrule
+1 & Course Intro, FastAPI & 7/1 \\
+2 & Basic Statistics \zhint{(统计)} & 14/1 \\
+3--5 & Data Representation \zhint{(数据表示)} & 14--28/1 \\
+6--7 & Data Modeling \zhint{(建模)} & 4--11/2 \\
+8 & Data Visualization \zhint{(可视化)} & 25/2 \\
+9 & Case: Business \zhint{(商业)} & 4--11/3 \\
+10 & Case: Text Mining \zhint{(文本)} & 11--18/3 \\
+11 & Case: Multimedia \zhint{(多媒体)} & 18--25/3 \\
+12 & Case: Game \zhint{(游戏)} & 25/3--1/4 \\
+13 & Summary \zhint{(总结)} & 1/4 \\
+\# & Final Exam & 15/4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ============================================================
+\section{Python Environment \zhint{(Python环境)}}
+% ============================================================
+
+\subsection{What is Python? \zhint{(Python是什么)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item High-level interpreted language (1991, Guido van Rossum)\\
+    \zhint{高级解释型语言，代码简洁易读}
+    \item Current version: Python 3.13 \zhint{(本课用Anaconda 3.13)}
+\end{itemize}
+
+\subsection{Hello World \zhint{(第一个程序)}}
+\begin{lstlisting}
+# In Python interpreter
+>>> print("Hello World!")
+Hello World!
+\end{lstlisting}
+
+\begin{lstlisting}
+# As a script: helloworld.py
+print("Hello World!")
+# Run: $ python helloworld.py
+\end{lstlisting}
+
+\subsection{Common Uses \zhint{(Python能干啥)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item Web backends \zhint{(网站后端)}: YouTube, Reddit
+    \item Data science \& ML \zhint{(数据科学)}: PyTorch
+    \item Scientific computing \zhint{(科学计算)}
+    \item Data visualization \zhint{(数据可视化)}
+\end{itemize}
+
+\subsection{Setup \zhint{(推荐安装)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \textbf{Anaconda} --- 1500+ packages, easy to manage\\
+    \zhint{自带大量数据科学包，装好就能用}
+    \item \textbf{IDE}: VS Code \zhint{(免费，好用)}
+\end{itemize}
+
+% ============================================================
+\section{Reference Books \zhint{(参考书)}}
+% ============================================================
+
+\begin{enumerate}[leftmargin=*, nosep, itemsep=2pt]
+    \item \textit{Practical Statistics for Data Scientists}\\
+    \zhint{统计学50个核心概念}
+    \item \textit{Python for Data Analysis}\\
+    \zhint{Pandas/NumPy实战数据处理}
+    \item \textit{Intro to ML with Python}\\
+    \zhint{Python机器学习入门}
+    \item \textit{Data Science and Big Data Analytics}\\
+    \zhint{数据科学全流程+大数据分析}
+    \item \textit{Deep Learning} (Goodfellow)\\
+    \zhint{深度学习经典教材（花书）}
+\end{enumerate}
+
+\subsection{Python Resources \zhint{(学习资源)}}
+\begin{itemize}[leftmargin=*, nosep, itemsep=0pt]
+    \item \texttt{docs.python.org/3/} \zhint{(官方文档)}
+    \item \texttt{learnpython.org} \zhint{(交互式教程)}
+    \item \texttt{w3schools.com/python} \zhint{(入门教程)}
+\end{itemize}
+
+\end{multicols}
+\end{CJK}
+\end{document}
