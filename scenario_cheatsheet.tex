@@ -59,18 +59,18 @@
 \zhint{情景题万能答题模板，按这三段写}
 
 \keybox{
-\textbf{P1: Objectives \& Motivations} (3\%) {\scriptsize -- What + Why + Expected outcome.
-``The objective is to develop a [system] that [does what] using [technique]. Motivated by [R1], [R2], [R3].''}
+\textbf{P1: Objectives \& Motivations} (3\%) {\scriptsize -- What do we want to build? Why does it matter? What is the goal?\\
+``We want to build a [system] to [do what] by using [method]. This is important because [reason 1], [reason 2], and [reason 3].''}
 }
 \vspace{-2pt}
 \keybox{
-\textbf{P2: Challenges \& Limitations} (2\%) {\scriptsize -- 2--3 challenges + 1--2 limitations.
-``Key challenges: [C1], [C2], [C3]. Limitations: [L1], [L2].''}
+\textbf{P2: Challenges \& Limitations} (2\%) {\scriptsize -- What makes this hard? What are the weak points?\\
+``The main challenges are [C1], [C2], and [C3]. The limitations are [L1] and [L2].''}
 }
 \vspace{-2pt}
 \keybox{
-\textbf{P3: Data Collection \& Format} (3\%) {\scriptsize -- Source (API/sensor/DB/web) + format (tabular/image/text/audio/time series) + features/dimensions.
-``Data from [source]. Format: [type] with [F1, F2, ...]. Size: [N]$\times$[M].''}
+\textbf{P3: Data Collection \& Format} (3\%) {\scriptsize -- Where do we get data? What does it look like?\\
+``We collect data from [source]. The data is [type] with features like [F1, F2, ...]. The size is about [N] samples with [M] features.''}
 }
 
 % ==================== COMMON BUILDING BLOCKS ====================
@@ -89,155 +89,155 @@ Classify: Acc, Prec, Recall, F1, MCC, AUC | Regress: $R^2$, MAE, RMSE | Cluster:
 
 % ==================== ALL SCENARIOS ====================
 \section{Scenario Quick Cards}
-\zhint{每个场景的要点速查}
+\zhint{每个场景的要点速查：O=目标 C=挑战 D=数据}
 
 % --- BUSINESS / PREDICTION ---
 \subsection{A. Prediction \& Forecasting}
 
-\scenario{A1. Lottery / Mark Six Forecast}{彩票预测}
-{Predict next draw using historical data, probability, regression.}
-{Random by nature; no guaranteed pattern; overfitting to noise; small sample relative to combination space ($C_{49}^{6}$=13.98M).}
-{Historical draw results from official website. Tabular: draw\_date, 6 winning numbers. Time series format.}
+\scenario{A1. Lottery / Mark Six}{彩票预测}
+{Use past draw data to predict future numbers with probability and regression models.}
+{Totally random; no real pattern; easy to overfit noise; huge number of combinations ($C_{49}^{6}$=13.98M).}
+{Past draw results from official site. Table: date + 6 numbers. Time series format.}
 
 \scenario{A2. Stock Price Prediction}{股票预测}
-{Predict future price/trend using LSTM on historical OHLCV data.}
-{Black swans, market psychology, reflexivity, overfitting, non-stationary data.}
-{yfinance API. Time series: Open, High, Low, Close, Volume. Sliding window (e.g. 30 days) as input.}
+{Use LSTM on past stock data (OHLCV) to predict future price or trend.}
+{Sudden crashes (black swan), human emotions affect market, data keeps changing, easy to overfit.}
+{yfinance API. Time series: Open, High, Low, Close, Volume. Use 30-day sliding window as input.}
 
-\scenario{A3. Automated Trading Agent}{自动交易}
-{DQN agent learns buy/sell/hold strategy to maximize portfolio return.}
-{Sparse reward, large state space, market regime changes, transaction costs.}
-{yfinance API. State: prices + portfolio. Actions: buy/sell/hold. Reward: profit/loss.}
+\scenario{A3. Auto Trading Agent}{自动交易}
+{Train a DQN agent to learn when to buy, sell, or hold to make profit.}
+{Reward is sparse (only see profit/loss later), market changes over time, trading fees.}
+{yfinance API. State = prices + what we own. Action = buy/sell/hold. Reward = profit or loss.}
 
 % --- RECOMMENDER ---
 \subsection{B. Recommender Systems}
 
 \scenario{B1. Movie/Music Recommendation}{电影/音乐推荐}
-{Recommend items based on user preferences (Netflix/Spotify).}
-{Cold start (new users/items), data sparsity, scalability, over-specialization.}
-{User-item rating matrix (sparse). User profiles, item metadata (genre, tags). Interaction logs (clicks, plays, ratings).}
+{Suggest movies or songs that a user will like (Netflix/Spotify style).}
+{Cold start: new users have no history; data is very sparse; users may only like one type.}
+{User-item rating table (mostly empty). Also: user profiles, item info (genre, tags), click/play logs.}
 
-\scenario{B2. E-commerce Product Recommendation}{电商推荐}
-{Recommend products to increase conversion rate (Amazon).}
-{Same as B1 + fast-changing inventory, session-based behavior.}
-{Purchase history, browsing logs, product features. Tabular + text (reviews).}
+\scenario{B2. E-commerce Recommendation}{电商推荐}
+{Suggest products to help users find what they want (Amazon style).}
+{Same as B1, plus products change fast, users browse quickly.}
+{Purchase history, browsing logs, product details. Mix of table data + text (reviews).}
 
 % --- NLP ---
 \subsection{C. NLP Scenarios}
 
 \scenario{C1. Fake News Detection}{假新闻检测}
-{Classify news articles as real or fake using NLP models.}
-{Polysemy, context-dependent meaning, evolving language, adversarial manipulation.}
-{News articles with labels. Text data. Tokenized $\to$ embeddings. Classic: TF-IDF (25k$\times$5k). DL: BERT tokenizer (max\_length=256).}
+{Tell if a news article is real or fake using NLP.}
+{Same word can mean different things; language keeps changing; people try to trick the system.}
+{News articles with real/fake labels. Text data. Classic: TF-IDF (25k$\times$5k). DL: BERT tokenizer (max 256 tokens).}
 
-\scenario{C2. Sentiment Analysis (Movie Reviews)}{情感分析}
-{Classify reviews as positive/negative (IMDB dataset).}
-{Sarcasm, negation, context dependency, word order matters.}
-{IMDB: 25k train + 25k test. Text $\to$ tokenized $\to$ embeddings. Labels: pos/neg.}
+\scenario{C2. Sentiment Analysis}{情感分析}
+{Tell if a movie review is positive or negative (IMDB).}
+{Sarcasm is hard to detect; ``not good'' vs ``good''; word order matters.}
+{IMDB: 25k train + 25k test. Text $\to$ tokens $\to$ embeddings. Two labels: pos/neg.}
 
 \scenario{C3. Chatbot / Assistant}{聊天机器人}
-{Conversational AI for customer service using GPT/LLaMA.}
-{Intent understanding, multi-turn context, hallucination.}
-{Conversation logs, FAQ pairs (query, response). Fine-tune GPT/LLaMA.}
+{Build an AI that can talk to customers and answer questions.}
+{Must understand what user wants; remember past messages; may give wrong answers (hallucination).}
+{Chat logs, FAQ pairs (question + answer). Fine-tune GPT or LLaMA.}
 
-\scenario{C4. Translation / Summarization}{翻译/摘要}
-{Translate or summarize text using seq2seq Transformer (T5).}
-{Word order, idioms, coherence, hallucination, rare languages.}
-{Parallel corpus or document corpus. Text $\to$ tokenized. Markov chain as non-DL baseline.}
+\scenario{C4. Translation / Summary}{翻译/摘要}
+{Translate text between languages, or make a short summary.}
+{Different languages have different word orders; idioms hard to translate; output must make sense.}
+{Paired sentences (source + target) or documents. Text $\to$ tokens. Markov chain as simple baseline.}
 
 % --- AUDIO ---
 \subsection{D. Audio / Speech}
 
 \scenario{D1. Vocal Separation (Karaoke)}{人声分离}
-{Isolate vocals from music for karaoke or remixing.}
-{Frequency overlap between voice and instruments, harmonic complexity, temporal masking.}
-{Audio files (WAV/MP3). Waveform (1D) or spectrogram (2D). Use librosa or Demucs.}
+{Split a song into voice and music for karaoke.}
+{Voice and instruments share same frequency range; hard to separate cleanly.}
+{Audio files (WAV/MP3). Sound wave (1D) or spectrogram (2D). Use librosa or Demucs model.}
 
 \scenario{D2. Text-to-Speech (TTS)}{语音合成}
-{Convert text to natural-sounding speech (online dictionary, movie effects).}
-{Natural prosody, emotion expression, speaker identity, robotic sound.}
-{Text + paired audio recordings. Text $\to$ mel-spectrogram $\to$ waveform. Tacotron2 + WaveNet. Evaluate with MOS.}
+{Make computer read text out loud like a real person.}
+{Must sound natural, not robotic; show emotion; keep speaker identity.}
+{Text + matching audio recordings. Pipeline: text $\to$ mel-spectrogram $\to$ sound wave. Use Tacotron2 + WaveNet. Eval: MOS score.}
 
-\scenario{D3. Speech Recognition (STT)}{语音识别}
-{Convert speech to text (smart home, voice assistant).}
-{Accents, background noise, speaker variation, homophones.}
-{Audio recordings + transcriptions. Waveform $\to$ features. Use HuBERT / Wav2Vec 2.0. Speaker-dependent vs independent.}
+\scenario{D3. Speech-to-Text (STT)}{语音识别}
+{Turn spoken words into text (for smart home, voice assistant).}
+{Different accents, noisy rooms, people talk differently, words that sound the same.}
+{Audio recordings + written transcripts. Sound wave $\to$ features. Use HuBERT or Wav2Vec 2.0.}
 
 % --- VISION ---
 \subsection{E. Computer Vision}
 
-\scenario{E1. Accident / Anomaly Detection (CCTV)}{事故/异常检测}
-{Detect falls, choking, violence in elderly homes / public areas via CCTV.}
-{Real-time requirement, occlusion, lighting changes, false positives, privacy.}
-{CCTV video frames. Image sequences (H$\times$W$\times$3). CNN for detection (ResNet), action recognition. Labels: normal/accident.}
+\scenario{E1. Accident Detection (CCTV)}{事故检测}
+{Watch CCTV to detect falls, choking in elderly homes or public places.}
+{Must work in real-time; things can block the view; lighting changes; false alarms; privacy issues.}
+{CCTV video frames. Images (H$\times$W$\times$3). Use CNN (ResNet) to classify. Labels: normal or accident.}
 
-\scenario{E2. Medical Image Diagnosis}{医疗影像诊断}
-{Detect diseases (fractures, tumors) from X-ray/CT images.}
-{Small dataset, class imbalance (rare diseases), need expert labels, interpretability required.}
-{Hospital image database. Images (DICOM format $\to$ pixel arrays). Labels from radiologists. Use pre-trained CNN + fine-tune.}
+\scenario{E2. Medical Image Diagnosis}{医疗影像}
+{Find diseases (broken bones, tumors) in X-ray or CT images.}
+{Very few sick cases (imbalanced); need doctor labels; must be explainable; small dataset.}
+{Hospital image database. Medical images $\to$ pixel arrays. Doctor labels. Use pre-trained CNN + fine-tune.}
 
 \scenario{E3. Traffic Surveillance}{交通监控}
-{Detect vehicles, accidents, violations from cameras.}
-{Real-time, weather/lighting, occlusion, diverse vehicle types.}
-{Camera feeds. Video frames. Object detection (Mask R-CNN). Labels: vehicle/violation type.}
+{Detect cars, accidents, and violations from traffic cameras.}
+{Must be real-time; bad weather/light; cars block each other; many vehicle types.}
+{Traffic camera video. Video frames. Use object detection (Mask R-CNN). Labels: car type, violation.}
 
 \scenario{E4. Image Captioning}{图像描述}
-{Generate text for images (accessibility for visually impaired).}
-{Identify objects+actions+relationships+grammar. Feature bottleneck.}
-{Image-caption pairs (COCO). 224$\times$224$\times$3 + text. CNN+RNN or ViT+Transformer. Eval: BLEU, CIDEr.}
+{Write a sentence to describe what is in a picture (help blind people).}
+{Must find objects + actions + how they relate + write correct grammar.}
+{Image + caption pairs (COCO dataset). Image: 224$\times$224$\times$3. Use CNN+RNN or ViT+Transformer. Eval: BLEU, CIDEr.}
 
 % --- IMAGE/VIDEO GENERATION ---
 \subsection{F. Generation}
 
-\scenario{F1. AI Art / Marketing Image Generation}{AI艺术/营销图生成}
-{Generate images from text descriptions for design/advertising.}
-{High dimensionality (pixels), must imagine background, copyright concerns, quality control.}
-{Text-image pairs. Text prompt $\to$ DALL-E/Stable Diffusion. Evaluate with FID. CLIP ranks outputs.}
+\scenario{F1. AI Image Generation}{AI图片生成}
+{Create pictures from text descriptions for art or ads.}
+{Output is very high-dim (millions of pixels); must fill in background; copyright issues.}
+{Text-image pairs. Type text prompt $\to$ use DALL-E or Stable Diffusion. Eval: FID. CLIP scores the results.}
 
 \scenario{F2. DeepFake Detection}{深度伪造检测}
-{Detect manipulated videos to prevent fraud/misinformation.}
-{Increasingly realistic fakes, best AI only 80\% detection, adversarial attacks.}
-{Real + fake video pairs. Video frames (face crops). Binary classification. Features: blinking, lip sync, skin texture.}
+{Find fake videos to stop scams and misinformation.}
+{Fakes look more and more real; best AI only catches 80\%; attackers keep improving.}
+{Real + fake video pairs. Face crops from video frames. Binary: real or fake. Look at: blinking, lip sync, skin.}
 
-\scenario{F3. 2D-to-3D Reconstruction}{2D转3D}
-{Generate 3D model from a single 2D image (game assets, architecture).}
-{Infinite 3D shapes can explain one 2D view; needs strong priors; floater artifacts.}
-{RGB images + 3D ground truth (Objaverse). Image $\to$ TripoSR (DINOv1 + Transformer + NeRF $\to$ mesh). Eval: Chamfer Distance, F-Score.}
+\scenario{F3. 2D to 3D Model}{2D转3D}
+{Turn a single photo into a 3D model (for games, architecture).}
+{Many possible 3D shapes match one 2D view; needs learned priors; may have floating artifacts.}
+{RGB images + 3D ground truth. Use TripoSR: image $\to$ encoder $\to$ transformer $\to$ NeRF $\to$ mesh. Eval: Chamfer Distance, F-Score.}
 
-\scenario{F4. Text-to-3D Generation}{文字转3D}
-{Generate 3D models from text descriptions (Shap-E).}
-{Lower fidelity than manual modeling, topological errors, floaters, bottlenecked by 2D model.}
-{Text-3D pairs. Text prompt $\to$ image diffusion $\to$ point cloud diffusion $\to$ mesh. $\sim$13s per asset.}
+\scenario{F4. Text to 3D Model}{文字转3D}
+{Type words and get a 3D model (Shap-E by OpenAI).}
+{Less detailed than hand-made models; shape errors; floating points; limited by 2D image quality.}
+{Text + 3D pairs. Prompt $\to$ image diffusion $\to$ point cloud diffusion $\to$ mesh. About 13 seconds each.}
 
 % --- GAME / RL ---
 \subsection{G. Game \& RL}
 
 \scenario{G1. Card Game AI (Blackjack)}{21点AI}
-{Train agent to play Blackjack optimally using RL.}
-{Sparse reward (only at end), stochastic environment, exploration vs exploitation.}
-{Simulated games. State: (player\_sum, dealer\_card, usable\_ace). Actions: hit/stand. Use D3QN, A3C, or AlphaZero+MCTS.}
+{Train an AI to play Blackjack well using RL.}
+{Only get reward at game end (sparse); cards are random; must balance try-new vs use-best.}
+{Simulated games. State = (my total, dealer card, usable ace). Actions: hit or stand. Use D3QN, A3C, or AlphaZero.}
 
-\scenario{G2. Board Game AI (Chess/Go)}{棋类AI}
-{Master board games via self-play (AlphaZero).}
-{Huge state space, long-term planning, MCTS cost.}
-{Self-play games. State: board position. MCTS + dual-headed net (policy+value).}
+\scenario{G2. Board Game AI}{棋类AI}
+{Train AI to master Chess or Go by playing against itself (AlphaZero).}
+{Huge number of possible positions; need to plan many moves ahead; MCTS is expensive.}
+{Self-play generated games. State = board position. Use MCTS + dual net (policy head + value head).}
 
 \scenario{G3. Multi-Game Agent}{多游戏智能体}
-{Single agent plays multiple games without forgetting.}
-{Catastrophic forgetting: new task overwrites old weights.}
-{Multiple game envs. EWC protects important weights. Train A $\to$ B(+EWC) $\to$ C.}
+{One AI that can play many different games without forgetting old ones.}
+{Catastrophic forgetting: learning a new game erases what it learned before.}
+{Multiple game environments. Use EWC to protect important weights. Train: game A $\to$ game B (with EWC) $\to$ game C.}
 
 \subsection{H. Robot Learning}
 
-\scenario{H1. Robot Locomotion}{机器人行走}
-{Train humanoid to walk using RL + transfer learning.}
-{High-dim continuous actions, balance, sim-to-real gap.}
-{Simulated env. State: joint angles. Transfer: crawl $\to$ wall-walk $\to$ free-walk.}
+\scenario{H1. Robot Walking}{机器人行走}
+{Teach a robot to walk like a human using RL + transfer learning.}
+{Many joints to control at once; must keep balance; simulation differs from real world.}
+{Simulated physics environment. State = joint angles + body pose. Learn step by step: crawl $\to$ walk with wall $\to$ walk freely.}
 
-\scenario{H2. Robot Manipulation}{机器人抓取}
-{Train robot arm to grasp objects.}
-{Object variety, precision, deformable objects.}
-{Camera + joint data. Imitation / inverse RL / diffusion policies.}
+\scenario{H2. Robot Grasping}{机器人抓取}
+{Teach a robot arm to pick up objects.}
+{Objects come in all shapes; needs high precision; soft objects are tricky.}
+{Camera images + robot arm joint data. Use imitation learning, inverse RL, or diffusion policies.}
 
 % ==================== MODEL SELECTION GUIDE ====================
 \section{Which Model for Which Problem?}
