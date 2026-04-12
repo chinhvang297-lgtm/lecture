@@ -1,0 +1,256 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 12 -- Case Studies (IV): Game Problems}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{Game AI Overview}
+\zhint{游戏AI：用搜索和学习找到最优策略}
+
+\textbf{Games \& AI}: well-defined rules (env), actions, goals (rewards). AI serves as opponents, teammates, commentators, story guides.
+
+\textbf{Search techniques}: A* search, alpha-beta pruning (minimax), fuzzy logic, genetic algorithm.\\
+\zhint{搜索技术：A*、Alpha-Beta剪枝、模糊逻辑、遗传算法}
+
+\textbf{Rule-based}: if winning move $\to$ win; if opponent winning $\to$ block; else promote or random. Simple but limited for complex situations.
+
+% ==================== SECTION 2 ====================
+\section{Blackjack Environment}
+\zhint{21点：不超过21点的前提下赢过庄家}
+
+\textbf{Objective}: beat dealer without going over 21.\\
+Cards: 2--10 face value; J/Q/K = 10; Ace = 1 or 11.
+
+\textbf{State}: tuple (player\_sum, dealer\_showing, usable\_ace).\\
+E.g. (15, 10, False): player has 15, dealer shows 10, no usable Ace.\\
+\textbf{Actions}: Hit (take card) or Stand (stop).\\
+\textbf{Reward}: +1 win, --1 loss, 0 draw (sparse, end of episode only).\\
+\textbf{Dealer policy}: must hit until sum $\geq$ 17.\\
+\zhint{庄家必须在<17时继续要牌}
+
+\textbf{Basic strategy}: win 42.2\%, loss 49.1\%, tie 8.5\%.
+
+% ==================== SECTION 3 ====================
+\section{D3QN (Dueling Double DQN)}
+\zhint{D3QN：双重DQN减少过估计 + 对决架构分离状态价值和优势}
+
+\subsection{Double DQN}
+\zhint{双重DQN：用在线网络选动作，目标网络评估}\\
+Fixes overestimation bias in standard DQN.\\
+Standard: $y = r + \gamma \max_{a'} Q_{tar}(s', a'; \theta^-)$\\
+Double: $y = r + \gamma \, Q_{tar}(s', \arg\max_{a'} Q(s', a'; \theta); \theta^-)$\\
+\zhint{用$\theta$选动作，用$\theta^-$评估价值}
+
+\subsection{Dueling Architecture}
+\zhint{对决架构：分成价值流V(s)和优势流A(s,a)}\\
+Splits Q-network into two streams:\\
+\textbf{Value} $V(s)$: how good is this state?\\
+\textbf{Advantage} $A(s,a)$: how much better is action $a$ than average?\\
+$Q(s,a) = V(s) + \big(A(s,a) - \text{mean}_a A(s,a)\big)$\\
+E.g. state (20,2,False): $V(s)$ high (great position), $A(\text{STAND})$ positive, $A(\text{HIT})$ very negative.
+
+\textbf{Loss}: $\mathbb{E}[(y - Q(s,a;\theta))^2]$ where $\theta^-$ updated periodically.\\
+\textbf{Result}: win rate $\approx$ 43--44\% after 10k games.
+
+% ==================== SECTION 4 ====================
+\section{A3C (Async Advantage Actor-Critic)}
+\zhint{A3C：多个并行worker异步更新全局网络}
+
+\textbf{vs DQN}: supports continuous actions, trains faster, avoids maximization bias.
+
+\subsection{Key Components}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Asynchronous}: multiple workers explore in parallel, decorrelate data naturally \zhint{并行探索，自然去相关}
+\item \textbf{Actor}: learns policy $\pi(a|s)$ \zhint{策略网络}
+\item \textbf{Critic}: learns value $V(s)$ \zhint{价值网络}
+\item \textbf{Advantage}: $A(s,a) = Q(s,a) - V(s)$\\
+Positive $\to$ reinforce; Negative $\to$ discourage \zhint{正=强化，负=抑制}
+\end{itemize}
+
+\subsection{Training Pipeline}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item Workers collect (s, a, r) sequences independently
+\item Compute n-step returns $\to$ estimate advantage
+\item Calculate actor + critic gradients
+\item Asynchronously update global network
+\end{enumerate}
+\zhint{n-step回报：短n=高偏差低方差; 长n=低偏差高方差}\\
+\textbf{Result}: win rate $\approx$ 38--40\% (tends to always STAND).
+
+% ==================== SECTION 5 ====================
+\section{AlphaZero / AlphaBlackjack}
+\zhint{AlphaZero：DeepMind开发，只用规则+自我对弈学习}
+
+Self-play only: given rules, plays millions of games against itself.
+
+\subsection{MCTS (Monte Carlo Tree Search)}
+\zhint{蒙特卡洛树搜索：选择→扩展→模拟→反向传播}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Selection}: pick node via $Q + U$ (exploit + explore)
+\item \textbf{Expansion}: add new move to tree
+\item \textbf{Simulation}: play randomly to end (rollout)
+\item \textbf{Backpropagation}: update stats along path
+\end{enumerate}
+
+\subsection{Dual-Headed Network}
+\textbf{Policy head} (Actor): outputs $[P(\text{STAND}), P(\text{HIT})]$.\\
+\textbf{Value head} (Critic): scalar $\in [-1, +1]$.\\
+Training: policy gradient (actor) + MSE (critic).
+
+\subsection{Self-Play Training}
+Early: learn basics (don't hit on 20).\\
+Middle: nuanced strategy (16 vs dealer's 7).\\
+Late: master complex situations (soft hands).\\
+Each iteration plays against previous version.\\
+\textbf{Result}: win rate $\approx$ 38--40\%.
+
+% ==================== SECTION 6 ====================
+\section{Single Agent for Multiple Games}
+\zhint{单智能体玩多个游戏：核心挑战是灾难性遗忘}
+
+\textbf{Problem}: catastrophic forgetting -- learning Game B overwrites weights crucial for Game A.\\
+\zhint{灾难性遗忘：学新游戏会覆盖旧游戏的重要权重}
+
+\subsection{EWC (Elastic Weight Consolidation)}
+\zhint{弹性权重固化：惩罚对旧任务重要参数的大改动}\\
+Penalizes large changes to parameters important for previous tasks; allows flexibility for unimportant ones.\\
+\textbf{Process}: train Game A $\to$ train Game B with EWC (important weights ``elasticated'' toward A's solution) $\to$ repeat for Game C (EWC terms for both A and B).\\
+\textbf{Target games}: Blackjack (simple), Leduc Hold'em (imperfect info, bluffing), Hearts (long-term strategy).
+
+% ==================== SECTION 7 ====================
+\section{3D Model Generation}
+\zhint{3D模型生成：从2D图像或文本生成3D模型}
+
+\textbf{3D representations}: mesh (vertices + faces), depth map, voxel grid, point cloud, implicit surface.\\
+\textbf{Triangle mesh}: standard for graphics, adaptive, renderable, less memory. 8 vertices + 12 faces = cube.
+\begin{lstlisting}
+import trimesh, numpy as np
+vertices = np.array([
+  [0,0,0],[1,0,0],[1,1,0],[0,1,0], # bottom
+  [0,0,1],[1,0,1],[1,1,1],[0,1,1]  # top
+])
+faces = np.array([
+  [0,1,2],[0,2,3], [4,5,6],[4,6,7], # bot/top
+  [0,4,7],[0,7,3], [1,5,6],[1,6,2], # L/R
+  [0,1,5],[0,5,4], [3,2,6],[3,6,7]  # F/B
+])
+mesh = trimesh.Trimesh(vertices, faces)
+mesh.show()
+\end{lstlisting}
+
+\subsection{TripoSR (2D $\to$ 3D)}
+\zhint{TripoSR：单张图片重建3D模型}\\
+Input: single RGB image. Output: 3D mesh.\\
+Pipeline: DINOv1 encoder $\to$ Transformer decoder $\to$ triplane NeRF $\to$ marching cubes $\to$ mesh.\\
+No camera params needed (learned during training).\\
+\textbf{Improvements}: 40-channel triplane, BCE mask loss (reduce floaters), local 128$\times$128 patch rendering.\\
+\textbf{Metrics}: Chamfer Distance (lower=better), F-Score (higher=better).
+
+\subsection{Shap-E (Text $\to$ 3D)}
+\zhint{Shap-E：文本/图像生成3D隐式神经表示，约13秒}\\
+Generates INR (Implicit Neural Representation) parameters via diffusion.\\
+\textbf{Two-stage}: (1) text $\to$ 2D image (image diffusion); (2) image $\to$ 3D point cloud (point cloud diffusion conditioned on CLIP embedding).\\
+\textbf{Upsampler}: low-res $\to$ high-res point cloud $\to$ Poisson surface reconstruction $\to$ mesh.\\
+Speed: $\sim$13s per asset on V100 GPU.\\
+\textbf{Limitations}: lower fidelity, floater artifacts, topological errors, bottlenecked by 2D model quality.
+
+% ==================== SECTION 8 ====================
+\section{Robot Learning}
+\zhint{机器人学习：构建感知-动作循环}
+
+Robot vision: embodied, active, situated.\\
+Formulated as RL: perception $\to$ action $\to$ feedback loop.
+
+\subsection{Transfer Learning}
+\zhint{迁移学习：用预训练模型适应新任务}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Fixed feature extractor}: freeze pre-trained layers, train new classifier
+\item \textbf{Fine-tuning}: continue backprop on pre-trained weights
+\item \textbf{When}: small+similar $\to$ fix features; large+similar $\to$ fine-tune all; small+different $\to$ earlier layers; large+different $\to$ fine-tune all
+\end{itemize}
+
+\subsection{Robot Learning Methods}
+\zhint{机器人学习方法}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Imitation Learning}: mimic expert demonstrations \zhint{模仿学习}
+\item \textbf{Behavior Cloning}: supervised (state $\to$ action) \zhint{行为克隆}
+\item \textbf{Inverse RL}: infer expert's reward function, then optimize \zhint{逆强化学习}
+\item \textbf{Diffusion Policies}: generate multi-modal action sequences via diffusion models \zhint{扩散策略}
+\end{itemize}
+
+\keybox{
+\textbf{Ch12 Summary -- 3 Perspectives}:\\
+\textbf{Learn to play}: D3QN, A3C, AlphaZero, EWC\\
+\textbf{Learn to design}: TripoSR (2D$\to$3D), Shap-E (text$\to$3D)\\
+\textbf{Learn to walk}: Transfer learning, imitation, behavior cloning, inverse RL, diffusion policies
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}

@@ -1,0 +1,220 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 13 -- Course Summary}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{Exam Information}
+\zhint{考试信息}
+
+\textbf{Format} (3 types):
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Python Programming} (30\%): 3 problems -- data preprocessing, ML, visualization. Fill in the blanks.
+\item \textbf{Short Questions} (20\%): many small problems not covered by scenario-based.
+\item \textbf{Scenario-based Written} (50\%): 4 problems -- beginner to moderate interview questions.
+\end{enumerate}
+
+\textbf{Tips}: revise assignment Q1, lecture examples, UReply questions, prepare DS interview questions, understand course project design.
+
+% ==================== SECTION 2 ====================
+\section{Data Science Pipeline}
+\zhint{数据科学流程：定义问题→收集→预处理→建模→解释→进一步分析}
+
+\fbox{\parbox{0.95\linewidth}{\scriptsize Problem Def $\to$ Collection $\to$ Preprocessing $\to$ Model $\to$ Interpret $\to$ Further Analysis}}
+
+\subsection{Data Preprocessing (8 Steps)}
+\zhint{数据预处理8步}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item Load libraries and dataset
+\item Data wrangling \zhint{数据整理}
+\item Check missing values \zhint{检查缺失值}
+\item Handle categorical values \zhint{处理分类变量}
+\item Handle NL, images, audio \zhint{处理文本/图像/音频}
+\item Dimensionality reduction \zhint{降维}
+\item Train/validation/test split \zhint{划分数据集}
+\item Feature scaling \zhint{特征缩放}
+\end{enumerate}
+
+\subsection{4 Types of Data Analytics}
+\zhint{四种数据分析}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Descriptive}: what happened? \zhint{描述性：发生了什么}
+\item \textbf{Diagnostic}: why did it happen? \zhint{诊断性：为什么}
+\item \textbf{Predictive}: what will happen? \zhint{预测性：会发生什么}
+\item \textbf{Prescriptive}: what should we do? \zhint{规范性：应该怎么做}
+\end{itemize}
+
+\subsection{Basic ML Recap}
+\zhint{机器学习基础回顾}
+
+\textbf{4 data formats}: numerical, categorical, ordinal, text/image/audio.\\
+\textbf{4 ML problem types}: classification, regression, clustering, reinforcement learning.\\
+\textbf{3 algorithm types}: supervised, unsupervised, reinforcement.\\
+\textbf{3 dataset types}: training, validation, testing.
+
+% ==================== SECTION 3 ====================
+\section{All 17 Deep Learning Models}
+\zhint{本课程涵盖的17个深度学习模型}
+
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item \textbf{MLP} -- basic classification/regression \zhint{多层感知机}
+\item \textbf{DQN} -- basic RL agent \zhint{深度Q网络}
+\item \textbf{DeepCoNN} -- recommender (review CNN) \zhint{深度协同神经网络}
+\item \textbf{Wide \& Deep} -- recommender (memorize + generalize) \zhint{宽深网络}
+\item \textbf{GCN} -- recommender (graph convolution) \zhint{图卷积网络}
+\item \textbf{RNN} -- sequence modeling \zhint{循环神经网络}
+\item \textbf{LSTM} -- sequence with gates \zhint{长短期记忆}
+\item \textbf{BERT} -- encoder Transformer (NLP) \zhint{双向编码器}
+\item \textbf{GPT} -- decoder Transformer (text gen) \zhint{生成预训练Transformer}
+\item \textbf{Tacotron 2.0} -- speech synthesis (TTS) \zhint{语音合成}
+\item \textbf{HuBERT} -- speech recognition (STT) \zhint{语音识别}
+\item \textbf{CNN} -- image captioning encoder \zhint{卷积神经网络}
+\item \textbf{GAN} -- image generation \zhint{生成对抗网络}
+\item \textbf{Diffusion Model} -- image generation \zhint{扩散模型}
+\item \textbf{D3QN} -- game agent \zhint{对决双重DQN}
+\item \textbf{A3C} -- game agent (actor-critic) \zhint{异步优势Actor-Critic}
+\item \textbf{AlphaZero} -- game agent (MCTS + self-play) \zhint{自我对弈}
+\end{enumerate}
+
+Plus: \textbf{TripoSR} (2D$\to$3D) and \textbf{Shap-E} (text$\to$3D) for 3D generation.
+
+% ==================== SECTION 4 ====================
+\section{Chapter-by-Chapter Quick Reference}
+\zhint{各章快速索引}
+
+\subsection{Ch2--5: Foundations}
+\textbf{Data types}: structured (tabular) vs unstructured (text/image/audio).\\
+\textbf{Preprocessing}: missing values (drop/impute), encoding (one-hot, label), scaling (StandardScaler, MinMaxScaler), PCA for dim reduction.\\
+\textbf{Data representation}: TF-IDF (text), embeddings (word2vec), spectrograms (audio), pixel arrays (image).
+
+\subsection{Ch6: ML -- Classification \& Regression}
+\textbf{Classification}: DT, RF, SVM, KNN, ANN. Metrics: accuracy, precision, recall, F1, MCC, AUC-ROC.\\
+\textbf{Regression}: Linear, Logistic, Ridge, LASSO, SVR, ANN. Metrics: $R^2$, MAE, RMSE.\\
+\textbf{Model selection}: k-fold CV, train/val/test split.
+
+\subsection{Ch7: Clustering \& RL}
+\textbf{Clustering}: K-Means (elbow method), Agglomerative (linkage types), Spectral.\\
+\textbf{Metrics}: Silhouette $[-1,1]\uparrow$, Calinski-Harabasz $\uparrow$, Davies-Bouldin $\downarrow$.\\
+\textbf{RL}: agent/env/state/action/reward, Q-Learning, $\varepsilon$-greedy.
+
+\subsection{Ch8: Data Visualization}
+\textbf{Preprocessing}: histogram, boxplot, scatter, Q-Q, heatmap, pairplot.\\
+\textbf{Analysis}: ROC, training curve, residual, calibration, learning curve.\\
+\textbf{Combining}: subplots, overlay, shared axes. Text: word cloud.\\
+\textbf{7 best practices}: audience, simplicity, color, labels, scale, context, honesty.
+
+\subsection{Ch9: Business -- RecSys \& Stock}
+\textbf{RecSys 3 generations}:\\
+1st: CF (user/item), content-based, knowledge-based.\\
+2nd: hybrid, matrix factorization ($R \approx PQ^T$).\\
+3rd: DeepCoNN, Wide\&Deep, GCN.\\
+\textbf{Stock}: yfinance, EMA, LSTM (sliding window), DQN trading.\\
+\textbf{Metrics}: Sharpe ratio, max drawdown, Sortino ratio.
+
+\subsection{Ch10: NLP -- Semantic \& Text Gen}
+\textbf{Semantic}: TF-IDF+NB (0.84), NBoW (0.86), LSTM, BERT (MLM+NSP), Transformer (TinyBERT 0.86).\\
+\textbf{BERT variants}: ALBERT, RoBERTa, DistilBERT, TinyBERT.\\
+\textbf{Benchmarks}: GLUE (9 tasks), SQuAD (QA).\\
+\textbf{Text gen}: Markov chain, GPT (1$\to$4), LLaMA.\\
+\textbf{Architecture}: encoder-only (BERT) vs decoder-only (GPT) vs seq2seq (T5).
+
+\subsection{Ch11: Multimedia}
+\textbf{Audio}: vocal separation (librosa, Demucs).\\
+\textbf{TTS}: SPSS, concatenative, WaveNet (dilated causal conv), Tacotron2. Metric: MOS.\\
+\textbf{STT}: Wav2Vec 2.0, HuBERT (k-means pseudo-labels).\\
+\textbf{Image caption}: CNN-RNN+attention, ViT+Transformer. Metrics: BLEU, METEOR, CIDEr, SPICE.\\
+\textbf{Image gen}: GAN, DALL-E+CLIP, diffusion. Metric: FID.\\
+\textbf{Video}: DeepFake (encoder-decoder swap).
+
+\subsection{Ch12: Game}
+\textbf{Blackjack}: state=(sum, dealer, ace), hit/stand.\\
+\textbf{D3QN}: double (reduce overestimation) + dueling ($V(s)+A(s,a)$).\\
+\textbf{A3C}: async parallel workers, actor-critic, advantage.\\
+\textbf{AlphaZero}: MCTS + dual-headed net + self-play.\\
+\textbf{EWC}: prevent catastrophic forgetting across games.\\
+\textbf{3D gen}: TripoSR (image$\to$3D), Shap-E (text$\to$3D).\\
+\textbf{Robot}: transfer learning, imitation, behavior cloning, inverse RL, diffusion policies.
+
+% ==================== SECTION 5 ====================
+\section{Future of Data Science}
+\zhint{数据科学的未来}
+
+\textbf{Roles}: Data Scientist (models) vs ML Engineer (deploy) vs Data Engineer (pipeline/infra).\\
+\textbf{Emerging}: IoT (smart sensors), spatial intelligence (3D reasoning), Vision-Language Models (VLMs, multimodal).\\
+\textbf{Final message}: embrace GenAI tools; think products over applications; specialized agents over general ones.
+
+\keybox{
+\textbf{Course in One Line}:\\
+Data pipeline (collect $\to$ preprocess $\to$ model $\to$ interpret) applied to business, NLP, multimedia, and games using 17 deep learning models from MLP to diffusion.\\
+\zhint{数据流水线应用于商业/NLP/多媒体/游戏，涵盖17个深度学习模型}
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}

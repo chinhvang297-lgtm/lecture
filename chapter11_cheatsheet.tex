@@ -1,0 +1,263 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 11 -- Case Studies (III): Multimedia Problems}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{Multimedia Applications}
+\zhint{多媒体应用：音频分离、语音合成/识别、图像描述/生成、视频生成}
+
+Applications: surveillance, video highlights, healthcare (image diagnosis, drug discovery), accessibility.
+
+% ==================== SECTION 2 ====================
+\section{Vocal Separation}
+\zhint{人声分离：从歌曲中分离人声和伴奏}
+
+\subsection{Frequency Filtering (librosa)}
+\zhint{频率过滤：人声频率约80-1100Hz，用滤波器分离}
+\begin{lstlisting}
+import librosa, numpy as np, soundfile as sf
+y, sr = librosa.load('song.mp3', duration=120)
+S_full, phase = librosa.magphase(librosa.stft(y))
+# Nearest-neighbor filter with median
+S_filter = librosa.decompose.nn_filter(
+  S_full, aggregate=np.median,
+  metric='cosine',
+  width=int(librosa.time_to_frames(2, sr=sr)))
+S_filter = np.minimum(S_full, S_filter)
+# Soft masks for vocal/instrument separation
+margin_i, margin_v, power = 2, 10, 2
+mask_i = librosa.util.softmask(
+  S_filter, margin_i*(S_full-S_filter), power=power)
+mask_v = librosa.util.softmask(
+  S_full-S_filter, margin_v*S_filter, power=power)
+# Recover audio
+y_vocal = librosa.istft(mask_v * S_full * phase)
+y_bg = librosa.istft(mask_i * S_full * phase)
+sf.write("vocal.wav", y_vocal, sr)
+\end{lstlisting}
+\textbf{Limitation}: removes vocal harmonics \& instruments in same range.
+
+\subsection{Demucs Model}
+\zhint{Demucs：U-Net编解码器+LSTM，时域处理}\\
+U-Net encoder-decoder with BiLSTM. Time-domain processing.\\
+\textbf{Input}: raw waveform. \textbf{Output}: vocals, drums, bass, other.\\
+\textbf{Encoder}: 1$\to$64$\to$128$\to$256$\to$512$\to$1024 channels (4x downsample per layer).\\
+\textbf{Decoder}: symmetric, with skip connections to preserve temporal details.\\
+\textbf{BiLSTM}: between encoder/decoder (hidden=1024, 2--3 layers, dropout 0.2--0.3).
+
+\textbf{Hybrid Transformer Demucs}: evolved from LSTM (context $\sim$1--2s) to Transformer for global attention. Dual-path: CNN (local features) + Transformer (global context).\\
+\zhint{混合版：CNN提取局部特征 + Transformer建模全局上下文}
+
+% ==================== SECTION 3 ====================
+\section{Speech Synthesis (TTS)}
+\zhint{语音合成：文字转语音}
+
+\subsection{Non-DL Approaches}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{SPSS/HMM}: text normalization $\to$ phoneme $\to$ HMM generates speech params (Tool: FreeTTS) \zhint{统计参数合成}
+\item \textbf{Concatenative}: join recorded speech units (phoneme/diphone/syllable). Natural but large storage, join artifacts. \zhint{拼接合成：拼接录音片段}
+\end{itemize}
+
+\subsection{WaveNet}
+\zhint{WaveNet：自回归卷积模型，逐样本生成音频}\\
+Autoregressive: $p(x) = \prod_{t=1}^{T} p(x_t | x_1, ..., x_{t-1})$.\\
+\textbf{Causal convolution}: shifts filter so output only depends on past.\\
+\textbf{Dilated convolution}: skip inputs to increase receptive field exponentially without adding layers.\\
+\zhint{因果卷积保证时序; 空洞卷积扩大感受野}\\
+\textbf{Softmax}: $\mu$-law companding quantizes 65536 values $\to$ 256.\\
+\textbf{Gated activation}: $\tanh \otimes \sigma$ (better than ReLU for audio).
+
+\subsection{Tacotron 2}
+\zhint{Tacotron2：端到端TTS，字符→梅尔频谱→WaveNet→波形}\\
+Pipeline: characters $\to$ mel-spectrograms $\to$ WaveNet $\to$ waveform.\\
+\textbf{Encoder}: char embedding + conv layers + BiLSTM.\\
+\textbf{Attention}: location-sensitive (prevents skipping/repeating).\\
+\textbf{Decoder}: autoregressive, predicts 80-band mel-spectrogram frames.
+
+\subsection{MOS (Mean Opinion Score)}
+\zhint{MOS：人类主观评分(1-5)，4.3-4.5=优秀，<3.5=不可接受}\\
+$\text{MOS} = \frac{1}{N}\sum_{i=1}^{N} R_i$ (1=Bad to 5=Excellent).\\
+WaveNet achieves near-human MOS ($\sim$4.2--4.5).
+
+% ==================== SECTION 4 ====================
+\section{Speech Recognition (STT)}
+\zhint{语音识别：语音转文字}
+
+\textbf{Types}: speaker-dependent (robust, trained on one person) vs speaker-independent (general).\\
+\textbf{Pipeline}: digitalize $\to$ encoding model (HMM/WaveNet) $\to$ decoding language model (Transformer).
+
+\subsection{Wav2Vec 2.0}
+\zhint{Wav2Vec 2.0：CNN编码器+Transformer+量化}\\
+CNN encoder (raw audio $\to$ latent) $\to$ Transformer (long-range context) $\to$ quantization (discrete speech units).\\
+Training: masked prediction with contrastive + diversity loss.
+
+\subsection{HuBERT}
+\zhint{HuBERT：用k-means伪标签的自监督语音模型}\\
+Hidden-unit BERT: BERT adapted for continuous speech.\\
+\textbf{Key idea}: k-means on MFCCs creates pseudo-labels; model predicts masked audio regions.\\
+\textbf{Two-stage training}:\\
+1. K-means on MFCC features $\to$ basic acoustic units.\\
+2. K-means on HuBERT features $\to$ linguistic representations.\\
+\textbf{vs Wav2Vec 2.0}: cross-entropy loss (simpler); separate clustering for targets; re-uses encoder embeddings.
+
+% ==================== SECTION 5 ====================
+\section{Image Captioning}
+\zhint{图像描述：给图片自动生成文字描述}
+
+Need to identify: objects, actions, attributes, relationships, grammar.
+
+\subsection{Classic CNN-RNN}
+\zhint{经典方法：CNN编码图像 + RNN解码生成文字}\\
+Encoder: pre-trained CNN (VGG/ResNet/Inception) $\to$ feature vector.\\
+Decoder: LSTM/GRU generates caption word-by-word.\\
+\textbf{Soft attention}: weighted sum over spatial features; $z = \sum p_i \cdot a_i$.\\
+\textbf{Beam search}: find optimal word sequence (not greedy).\\
+\textbf{AoA} (Attention on Attention): information gate + relevance gate for better attention filtering.\\
+\textbf{Limitation}: single feature vector bottleneck loses spatial details.
+
+\subsection{Transformer-Based}
+Encoder $\to$ ViT (image as patch sequence). Decoder $\to$ text Transformer.\\
+\zhint{ViT把图像切成patch序列，用Transformer编码}
+
+\subsection{CNN Milestones (ImageNet)}
+\zhint{ImageNet CNN里程碑}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{AlexNet} (2012): CNNs go mainstream
+\item \textbf{VGGNet} (2014): depth matters
+\item \textbf{GoogLeNet} (2014): Inception module
+\item \textbf{ResNet} (2015): skip connections
+\item \textbf{ViT} (2020): Transformer on images
+\end{itemize}
+
+\subsection{Captioning Metrics}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{BLEU}: n-gram precision vs references \zhint{n-gram精确率}
+\item \textbf{METEOR}: adds stemming + synonymy (F-measure) \zhint{考虑词干和同义词}
+\item \textbf{CIDEr}: TF-IDF cosine similarity with references \zhint{TF-IDF余弦相似度}
+\item \textbf{SPICE}: semantic scene graph F-measure \zhint{语义场景图}
+\end{itemize}
+
+% ==================== SECTION 6 ====================
+\section{Image Generation}
+\zhint{图像生成：从文本/噪声生成图像}
+
+Harder than captioning: high-dimensional output (32$\times$32 = 3072 pixels), must imagine background.
+
+\subsection{GANs}
+\zhint{GAN：生成器vs判别器的对抗博弈}\\
+Generator creates fake images; Discriminator detects real/fake.\\
+Minimax objective: $\min_G \max_D \, \mathbb{E}[\log D(x)] + \mathbb{E}[\log(1-D(G(z)))]$.
+
+\subsection{DALL-E}
+\zhint{DALL-E：12B参数GPT-3 + dVAE视觉码本}\\
+Step 1: dVAE learns visual codebook (image $\to$ 32$\times$32 tokens).\\
+Step 2: Transformer predicts image tokens from text tokens (256 text + 1024 image tokens, 64 attention layers, 12B params).\\
+\textbf{CLIP}: ranks DALL-E outputs by text-image similarity.
+\begin{lstlisting}
+from sentence_transformers import SentenceTransformer
+from PIL import Image
+model = SentenceTransformer("clip-ViT-B-32")
+img_emb = model.encode(Image.open("dogs.jpg"))
+text_emb = model.encode(["Two dogs in snow",
+  "A cat on table", "London at night"])
+scores = model.similarity(img_emb, text_emb)
+\end{lstlisting}
+
+\subsection{Diffusion Model / Stable Diffusion}
+\zhint{扩散模型：逐步加噪→学习去噪，从纯噪声生成图像}\\
+\textbf{Forward}: add Gaussian noise over $T$ steps (fixed process).\\
+\textbf{Reverse}: neural network learns to denoise step-by-step (Markov chain + KL divergence).\\
+\textbf{vs Autoencoder}: only train one model (denoiser), forward process is fixed.\\
+\textbf{FID} (Fr\'{e}chet Inception Distance): Wasserstein distance between Inception v3 features of real vs generated images. Lower = better.\\
+\zhint{FID：用Inception v3特征比较生成图与真实图的分布距离}
+
+% ==================== SECTION 7 ====================
+\section{Video Generation / DeepFake}
+\zhint{DeepFake：深度学习+伪造，用AI换脸}
+
+\textbf{Process}: collect video $\to$ encoder learns shared face representation $\to$ two decoders (one per person) $\to$ swap: encode A's face, decode with B's decoder.\\
+\textbf{Loss functions}:\\
+Perceptual: $\| \phi_j(x) - \phi_j(G(z)) \|^2$ (semantic similarity via VGG).\\
+Identity: $1 - \cos(\phi_{id}(\text{fake}), \phi_{id}(\text{real}))$ (preserve target identity).\\
+\textbf{How to spot}: unnatural movement, irregular blinking, lip sync mismatch, hair/skin artifacts. Best AI detection $\sim$80\%.
+
+\keybox{
+\textbf{Ch11 Model Map}:\\
+\textbf{Audio}: librosa (filter), Demucs (U-Net+LSTM/Transformer)\\
+\textbf{TTS}: SPSS, Concatenative, WaveNet, Tacotron2\\
+\textbf{STT}: Wav2Vec 2.0, HuBERT\\
+\textbf{Image Caption}: CNN-RNN+Attention, ViT+Transformer\\
+\textbf{Image Gen}: GAN, DALL-E+CLIP, Diffusion\\
+\textbf{Video Gen}: DeepFake (encoder-decoder swap)
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}

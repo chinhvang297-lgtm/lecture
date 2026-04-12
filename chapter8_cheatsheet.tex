@@ -1,0 +1,427 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 8 -- Data Visualization}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{Introduction}
+\zhint{数据可视化：用图形展示数据中的模式和趋势}
+
+\textbf{Goals}: explore, monitor, explain data.\\
+\textbf{Benefits}: reveal patterns/trends, identify outliers, simplify complex info, aid decision-making.
+
+\textbf{When to visualize}:
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item Preprocessing: distribution, trends \zhint{看数据分布}
+\item Analysis: model performance \zhint{看模型表现}
+\item Interpretation: present findings \zhint{展示结果}
+\end{itemize}
+
+\textbf{Packages}: \texttt{matplotlib.pyplot as plt}, \texttt{seaborn as sns}\\
+\zhint{Seaborn建在matplotlib之上，和pandas配合好}
+
+% ==================== SECTION 2 ====================
+\section{Preprocessing Visualizations}
+
+\subsection{1. Histogram (Distribution)}
+\zhint{直方图：看单个特征的数据分布}
+\begin{lstlisting}
+import seaborn as sns
+import matplotlib.pyplot as plt
+penguins = sns.load_dataset("penguins")
+# Basic histogram
+sns.displot(penguins, x="flipper_length_mm")
+# Custom bins
+sns.displot(penguins, x="flipper_length_mm",
+            binwidth=3)
+sns.displot(penguins, x="flipper_length_mm",
+            bins=20)
+# Colored by category
+sns.displot(penguins, x="flipper_length_mm",
+            hue="species")
+# Stacked
+sns.displot(penguins, x="flipper_length_mm",
+  hue="species", multiple="stack")
+# Side-by-side
+sns.displot(penguins, x="flipper_length_mm",
+  hue="sex", multiple="dodge")
+plt.show()
+\end{lstlisting}
+
+\subsection{2. Boxplot}
+\zhint{箱线图：显示中位数、四分位数和异常值}\\
+\textbf{Key}: Median, Q1 (25\%), Q3 (75\%), IQR=Q3--Q1.\\
+Whiskers: Q1--1.5$\times$IQR to Q3+1.5$\times$IQR. Beyond = outliers.
+
+\begin{lstlisting}
+# Pandas approach
+penguins.boxplot(column=["flipper_length_mm"])
+# Conditional boxplot
+penguins.boxplot(column=["flipper_length_mm"],
+                 by=["species"])
+# Seaborn approach
+sns.boxplot(data=penguins,
+  x="flipper_length_mm", y="sex",
+  hue="species")
+plt.show()
+\end{lstlisting}
+
+\subsection{3. Scatter Plot}
+\zhint{散点图：看两个特征的关系}
+\begin{lstlisting}
+# Matplotlib
+plt.scatter(x, y)
+plt.title("Title"); plt.xlabel("X")
+plt.ylabel("Y"); plt.savefig("name")
+# Seaborn (with hue grouping)
+sns.scatterplot(x="total_bill", y="tip",
+  data=tips, hue="smoker",
+  hue_order=["Yes","No"])
+plt.show()
+\end{lstlisting}
+
+\subsection{4. Q-Q Plot}
+\zhint{QQ图：检查数据是否服从某分布（如正态分布）}\\
+Points on 45-degree line = same distribution.
+\begin{lstlisting}
+import statsmodels.api as sm
+import pylab as py
+data_pts = np.random.normal(0, 1, 100)
+sm.qqplot(data_pts, line='45')
+py.show()
+\end{lstlisting}
+
+\subsection{5. Heatmap}
+\zhint{热力图：用颜色表示矩阵中数值大小，常用于看特征相关性}
+\begin{lstlisting}
+glue = sns.load_dataset("glue").pivot(
+  index="Model",columns="Task",values="Score")
+sns.heatmap(glue)           # basic
+sns.heatmap(glue, annot=True) # with numbers
+plt.show()
+\end{lstlisting}
+
+\subsection{6. Pair Plot}
+\zhint{配对图：所有特征两两组合的散点图+对角线分布图}
+\begin{lstlisting}
+sns.pairplot(USAhousing)
+plt.show()
+\end{lstlisting}
+
+% ==================== SECTION 3 ====================
+\section{Analysis Visualizations}
+
+\subsection{1. ROC Curve}
+\zhint{ROC曲线：FPR vs TPR，AUC越大模型越好}
+\begin{lstlisting}
+from sklearn.metrics import roc_curve, \
+  roc_auc_score
+fpr, tpr, _ = roc_curve(y_test, y_proba)
+auc = roc_auc_score(y_test, y_proba)
+plt.plot(fpr, tpr, label=f"AUC={auc:.3f}")
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{2. Training Curve (ANN)}
+\zhint{训练曲线：看loss是否收敛，train和val差距是否合理}
+\begin{lstlisting}
+plt.plot(iters, losses, label="Train")
+plt.xlabel("Iterations")
+plt.ylabel("Loss"); plt.show()
+# Accuracy curve
+plt.plot(iters, train_acc, label="Train")
+plt.plot(iters, val_acc, label="Validation")
+plt.legend(loc='best'); plt.show()
+\end{lstlisting}
+\zhint{train和val差距大=过拟合; 都高=欠拟合}
+
+\subsection{3. Predicted vs Actual}
+\zhint{预测值vs真实值：点越接近对角线=模型越好}
+\begin{lstlisting}
+plt.scatter(true_value, predicted_value,
+            c='crimson')
+p1=max(max(predicted_value),max(true_value))
+p2=min(min(predicted_value),min(true_value))
+plt.plot([p1,p2],[p1,p2],'b-') # diagonal
+plt.xlabel('True'); plt.ylabel('Pred')
+plt.show()
+\end{lstlisting}
+
+\subsection{4. Residual Plot}
+\zhint{残差图：检查回归模型假设是否成立（残差应随机分布）}
+\begin{lstlisting}
+sns.residplot(x='Head_size',
+  y='Brain_weight', data=data)
+plt.show()
+\end{lstlisting}
+
+\subsection{5. Calibration Plot}
+\zhint{校准图：预测概率是否和实际频率一致}
+\begin{lstlisting}
+from sklearn.calibration import calibration_curve
+prob_true, prob_pred = calibration_curve(
+  y_test, y_probs, n_bins=10)
+plt.plot(prob_pred, prob_true, marker='o')
+plt.plot([0,1],[0,1],'--',color='gray')
+plt.xlabel('Mean predicted probability')
+plt.ylabel('Fraction of positives')
+plt.show()
+\end{lstlisting}
+
+\subsection{6. Learning Curve}
+\zhint{学习曲线：看增加训练数据是否能提升模型}
+\begin{lstlisting}
+from sklearn.model_selection import learning_curve
+sizes, train_sc, val_sc = learning_curve(
+  estimator=LinearRegression(),
+  X=df[features], y=df[target],
+  train_sizes=[1,100,500,2000,5000,7654],
+  cv=5, scoring='neg_mean_squared_error')
+plt.plot(sizes,-train_sc.mean(axis=1),
+         label='Train error')
+plt.plot(sizes,-val_sc.mean(axis=1),
+         label='Validation error')
+plt.legend(); plt.show()
+\end{lstlisting}
+\zhint{两条线差距很小=理想; 差距大=模型太简单或数据不够}
+
+% ==================== SECTION 4 ====================
+\section{Combining Multiple Plots}
+
+\subsection{1. Subplots Grid}
+\begin{lstlisting}
+fig, axes = plt.subplots(nrows=2, ncols=2,
+                         figsize=(12, 8))
+axes[0,0].plot(x, y1); axes[0,0].set_title('A')
+axes[0,1].plot(x, y2); axes[1,0].plot(x, y3)
+plt.tight_layout(); plt.show()
+\end{lstlisting}
+
+\subsection{2. Overlay on Same Axes}
+\begin{lstlisting}
+plt.plot(x, y1, 'b-', label='sin(x)')
+plt.plot(x, y2, 'r--', label='cos(x)')
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{3. Mixed Plot Types}
+\begin{lstlisting}
+fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2)
+ax1.bar(cats, vals)     # bar
+ax2.scatter(sx, sy)     # scatter
+ax3.hist(data, bins=15) # histogram
+ax4.pie(vals, labels=cats, autopct='%1.1f%%')
+\end{lstlisting}
+
+\subsection{4. Shared Axes}
+\begin{lstlisting}
+fig, (ax1,ax2,ax3) = plt.subplots(1, 3,
+  figsize=(15,5), sharey=True)
+\end{lstlisting}
+\zhint{sharey=True让多个子图共享Y轴，便于比较}
+
+% ==================== SECTION 5 ====================
+\section{Text Visualization}
+
+\subsection{Word Cloud}
+\zhint{词云：词频越高，字体越大}
+\begin{lstlisting}
+from wordcloud import WordCloud
+# From text
+wc = WordCloud(width=800, height=400,
+  background_color='white').generate(text)
+plt.imshow(wc, interpolation='bilinear')
+plt.axis('off'); plt.show()
+
+# From frequency dict
+word_freq = {'python':45, 'data':38, ...}
+wc = WordCloud(width=800, height=400,
+  background_color='lightblue', colormap='cool'
+).generate_from_frequencies(word_freq)
+
+# Multiple documents as subplots
+fig, axes = plt.subplots(1, 3, figsize=(18,6))
+for ax, (title, text) in zip(axes, texts.items()):
+  wc = WordCloud(max_words=30).generate(text)
+  ax.imshow(wc); ax.set_title(title)
+  ax.axis('off')
+\end{lstlisting}
+
+\subsection{Slope Chart \& Sankey}
+\textbf{Slope Chart}: show changes over time / rankings.\\
+\zhint{斜率图：展示两个时间点之间的变化}\\
+\textbf{Sankey Chart}: visualize flow between nodes.\\
+\zhint{桑基图：展示数据流向（如能源流、供应链）}
+\begin{lstlisting}
+import plotly.graph_objects as go
+fig = go.Figure(data=[go.Sankey(
+  node=dict(pad=15, thickness=20,
+    label=["SrcA","SrcB","ProcX","Out1"]),
+  link=dict(source=[0,0,1],target=[2,3,2],
+            value=[8,4,2]))])
+fig.show()
+\end{lstlisting}
+
+% ==================== SECTION 6 ====================
+\section{Image Parsing \& Model Architecture}
+
+\subsection{Object Detection (Mask R-CNN)}
+\zhint{目标检测：识别图片中的物体位置和类别}
+\begin{lstlisting}
+import torchvision
+model = torchvision.models.detection\
+  .maskrcnn_resnet50_fpn(weights=...)
+model.eval()
+with torch.no_grad():
+  predictions = model([image_tensor])
+# predictions: boxes, scores, labels, masks
+\end{lstlisting}
+
+\subsection{torchinfo -- Visualize Model Layers}
+\zhint{查看神经网络每层的输出形状和参数数量}
+\begin{lstlisting}
+from torchinfo import summary
+summary(model, input_size=(64, 28*28))
+# Shows: layer type, output shape, param count
+# Total params, trainable params, size
+\end{lstlisting}
+
+% ==================== SECTION 7 ====================
+\section{GeoPandas \& Map Visualization}
+\zhint{GeoPandas：在pandas基础上加地理空间数据支持}
+
+\subsection{Loading Geospatial Data}
+\begin{lstlisting}
+import geopandas as gpd
+# Load from file
+gdf = gpd.read_file("example.shp")   # shapefile
+gdf = gpd.read_file("example.geojson") # GeoJSON
+gdf = gpd.read_file("example.gpkg")  # GeoPackage
+# Load from URL
+url = "https://naciscdn.org/naturalearth/..."
+world = gpd.read_file(url)
+\end{lstlisting}
+\zhint{Shapefile=.shp+.shx+.dbf; GeoJSON=JSON格式; GPKG=SQLite}
+
+\subsection{Geometry Attributes \& Methods}
+\textbf{Attributes}: \texttt{area}, \texttt{bounds}, \texttt{total\_bounds}, \texttt{geom\_type}, \texttt{is\_valid}\\
+\textbf{Methods}: \texttt{distance()}, \texttt{centroid}, \texttt{to\_crs()}, \texttt{plot()}
+
+\subsection{Choropleth Map}
+\zhint{分级统计图：用颜色深浅表示数值大小}
+\begin{lstlisting}
+# Simple world map
+world.plot(figsize=(10,6))
+# Choropleth with color by column
+ax = world["geometry"].boundary.plot(
+  figsize=(20,16))
+merged_df.plot(column="Discipline", ax=ax,
+  cmap='OrRd', legend=True,
+  legend_kwds={"label":"Participation",
+    "orientation":"horizontal"})
+ax.set_title("Title"); plt.show()
+\end{lstlisting}
+
+\subsection{Layered Map}
+\zhint{叠加多层地图：边界+区域+点+线}
+\begin{lstlisting}
+# Base layer: county boundaries
+ax = counties.plot(figsize=(10,10),
+  color='none', edgecolor='gainsboro')
+# Add layers
+wild_lands.plot(color='lightgreen', ax=ax)
+campsites.plot(color='maroon',markersize=2,
+               ax=ax)
+trails.plot(color='black',markersize=1,ax=ax)
+plt.show()
+\end{lstlisting}
+
+% ==================== SECTION 8 ====================
+\section{Visualization Best Practices}
+\zhint{可视化7条建议}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Label directly} on the chart \zhint{直接在图上标注}
+\item \textbf{Repeat units} \zhint{重复标注单位}
+\item \textbf{Move axis ticks} where needed \zhint{刻度放在需要的地方}
+\item \textbf{Don't center-align} text \zhint{不要居中对齐文字}
+\item \textbf{Don't rotate} text \zhint{不要旋转文字}
+\item \textbf{Use text outline} for readability \zhint{用文字描边提高可读性}
+\item \textbf{Choose suitable number format} \zhint{选合适的数字格式}
+\end{enumerate}
+
+\keybox{
+\textbf{Tools}: Matplotlib, Seaborn, Plotly, WordCloud, GeoPandas, torchinfo.\\
+\textbf{Business}: Excel, Google Data Studio, Tableau, Power BI.
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}

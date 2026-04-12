@@ -1,0 +1,318 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{CJKutf8}
+
+% Page layout
+\geometry{top=0.7cm, bottom=0.7cm, left=0.7cm, right=0.7cm}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{7pt}
+
+% Section formatting
+\titleformat{\section}{\normalsize\bfseries\color{blue!70!black}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\small\bfseries\color{blue!50!black}}{}{0em}{}
+\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\subsection}{0pt}{3pt}{1pt}
+
+% Code listing style
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{6.5}{7.5}\selectfont,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    stringstyle=\color{red!60!black},
+    commentstyle=\color{green!50!black}\itshape,
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{gray!8},
+    frame=single,
+    framerule=0.3pt,
+    rulecolor=\color{gray!50},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=2,
+    showstringspaces=false,
+    aboveskip=2pt,
+    belowskip=2pt,
+    xleftmargin=2pt,
+    xrightmargin=2pt,
+}
+
+\newcommand{\keybox}[1]{%
+    \begin{center}
+    \fcolorbox{blue!50!black}{blue!5}{%
+        \parbox{0.95\linewidth}{\small #1}%
+    }
+    \end{center}
+}
+
+\newcommand{\zhint}[1]{{\scriptsize\color{gray!70!black}#1}}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\begin{center}
+{\large\bfseries\color{blue!70!black} Chapter 10 -- Case Studies (II): Natural Language Problems}\\
+{\footnotesize IERG4320/IEMS5726 Data Science in Practice | Cheat Sheet}
+\end{center}
+
+\begin{multicols}{3}
+
+% ==================== SECTION 1 ====================
+\section{NLP Overview}
+\zhint{NLP：让计算机理解和生成自然语言}
+
+\textbf{Applications}: sentiment analysis, text classification, chatbots, machine translation, summarization, speech recognition, image captioning.\\
+\textbf{Why NLP is hard}: high-dimensional, sparse, sequential \& context-dependent, noisy \& unstructured, language-specific.\\
+\zhint{高维、稀疏、上下文依赖、噪声多、语言差异}
+
+\textbf{LLM}: trained on vast text via self-supervised learning; billions--trillions of parameters. Transformer architecture (2017) enabled GPT, BERT, LLaMA, DeepSeek, Gemini.
+
+\subsection{Semantic Analysis}
+\zhint{语义分析：从文本中提取情感/上下文/含义}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Context}: word meaning study (translation)
+\item \textbf{Emotions}: happy, sad, fear, calm
+\item \textbf{Sentiments}: positive, neutral, negative
+\end{itemize}
+
+\textbf{Non-ML concepts}: hyponyms, meronomy, polysemy, synonyms, antonyms, homonyms.\\
+\zhint{上下位词、部分整体、一词多义、近义词、反义词、同形异义}
+
+\subsection{Classic ML Approach}
+\zhint{经典方法：TF-IDF + 朴素贝叶斯，准确率约0.84}\\
+TF-IDF features + Naive Bayes classifier on IMDB (25k train / 25k test). Accuracy $\approx$ 0.84.\\
+\textbf{Limitations}: cannot handle polysemy/homonyms, no word position, simple model.
+
+% ==================== SECTION 2 ====================
+\section{Neural Bag-of-Words (NBoW)}
+\zhint{NBoW：词嵌入取平均后送入全连接网络分类}
+
+\textbf{Steps}: tokenize $\to$ embedding lookup $\to$ average pooling $\to$ FC layers $\to$ classification.\\
+\zhint{分词→查嵌入→平均池化→全连接层→分类}
+
+\begin{lstlisting}
+class NeuralBagOfWords(nn.Module):
+  def __init__(self, vocab_size, embed_dim,
+               hidden_dim, pad_idx):
+    super().__init__()
+    self.embedding = nn.Embedding(
+      vocab_size, embed_dim, padding_idx=pad_idx)
+    self.fc1 = nn.Linear(embed_dim, hidden_dim)
+    self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+    self.fc3 = nn.Linear(hidden_dim, 1)
+    self.dropout = nn.Dropout(0.3)
+    self.relu = nn.ReLU()
+    self.sigmoid = nn.Sigmoid()
+  def forward(self, x):
+    embedded = self.embedding(x)
+    bow = torch.mean(embedded, dim=1) # avg pool
+    out = self.dropout(self.relu(self.fc1(bow)))
+    out = self.dropout(self.relu(self.fc2(out)))
+    return self.sigmoid(self.fc3(out)).squeeze(-1)
+# Result: Test Acc = 0.8639 (5 epochs)
+\end{lstlisting}
+
+\textbf{Pros}: simple, fast, parallelizable, fixed-size output.\\
+\textbf{Cons}: ignores word order, no context, limited semantics.\\
+\zhint{优：简单快速; 缺：忽略词序和上下文}
+
+% ==================== SECTION 3 ====================
+\section{LSTM for NLP}
+\zhint{LSTM：按时间步顺序处理，保留上下文记忆}
+
+Sequential processing: each word is a time step.\\
+Takes current embedding + previous hidden state $\to$ gates decide what to remember/forget.\\
+\zhint{每个词按顺序处理，门控机制决定记忆/遗忘}
+
+\textbf{Pros}: captures word order, long-range dependencies.\\
+\textbf{Cons}: sequential (slow), fails on very long sequences.\\
+Test Acc $\approx$ 0.53 with only 5 epochs (needs longer training).
+
+% ==================== SECTION 4 ====================
+\section{BERT (Bidirectional Encoder)}
+\zhint{BERT：双向Transformer编码器，Google 2018}
+
+\textbf{Key ideas}: bidirectional context, self-attention, pre-train then fine-tune.\\
+\zhint{双向上下文 + 自注意力 + 预训练后微调}
+
+\subsection{Input Representation}
+\texttt{input = token\_emb + segment\_emb + position\_emb}\\
+Special tokens: \texttt{[CLS]} (classification), \texttt{[SEP]} (separator).\\
+Tokenizer: WordPiece (subword-level).
+
+\subsection{Pre-training Strategies}
+\begin{enumerate}[leftmargin=10pt,itemsep=0pt,topsep=0pt]
+\item \textbf{MLM} (Masked Language Model): mask 15\% tokens, predict originals \zhint{遮蔽语言模型}
+\item \textbf{NSP} (Next Sentence Prediction): predict if sentence B follows A \zhint{下一句预测}
+\end{enumerate}
+
+\subsection{BERT Variants}
+\zhint{BERT变体：更小更快的版本}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{ALBERT}: lighter, less training time
+\item \textbf{RoBERTa}: Facebook, improved pre-training
+\item \textbf{ELECTRA}: replaced token detection
+\item \textbf{DistilBERT}: compact, faster (66M params)
+\item \textbf{TinyBERT}: similar to DistilBERT
+\end{itemize}
+
+\subsection{Code: DistilBERT Mini}
+\begin{lstlisting}
+config = {'vocab_size': 30522, 'dim': 256,
+  'n_heads': 4, 'n_layers': 4,
+  'intermediate_dim': 1024, 'dropout': 0.1,
+  'max_length': 256, 'num_labels': 2}
+
+class DistilBertMini(nn.Module):
+  def __init__(self, config):
+    super().__init__()
+    self.embeddings = nn.Embedding(
+      config['vocab_size'], config['dim'])
+    encoder_layer = nn.TransformerEncoderLayer(
+      d_model=config['dim'],
+      nhead=config['n_heads'],
+      dim_feedforward=config['intermediate_dim'],
+      dropout=config['dropout'],
+      batch_first=True, norm_first=True)
+    self.transformer = nn.TransformerEncoder(
+      encoder_layer,
+      num_layers=config['n_layers'])
+    self.layer_norm = nn.LayerNorm(config['dim'])
+    self.dropout = nn.Dropout(config['dropout'])
+    self.classifier = nn.Linear(
+      config['dim'], config['num_labels'])
+  def forward(self, input_ids, attention_mask):
+    x = self.embeddings(input_ids)
+    key_pad = ~attention_mask.bool()
+    x = self.transformer(
+      x, src_key_padding_mask=key_pad)
+    # Mean pooling over non-padded tokens
+    masked = x * attention_mask.unsqueeze(-1)
+    pooled = masked.sum(1) / attention_mask\
+      .sum(1, keepdim=True)
+    pooled = self.dropout(self.layer_norm(pooled))
+    return self.classifier(pooled)
+# Params: 10.9M (16.6% of DistilBERT)
+# Test Acc: 0.8371 (5 epochs)
+\end{lstlisting}
+
+\textbf{Applications}: semantic similarity, text classification, QA, summarization, NER.
+
+% ==================== SECTION 5 ====================
+\section{Transformer Model}
+\zhint{Transformer：完全基于自注意力，无需RNN/CNN}
+
+\textbf{Self-attention}: captures interdependencies between all words simultaneously (not sequential).\\
+\textbf{3 attention types}: within encoder, encoder--decoder, within decoder.\\
+\zhint{三种注意力：编码器内、编解码器间、解码器内}
+
+\textbf{Always use pre-trained models} -- training from scratch is very expensive (BERT: 8 days on TPU v3; re-training: 2--3 hours).
+\begin{lstlisting}
+# TinyBERT pre-trained transformer
+from transformers import (AutoTokenizer,
+  AutoModelForSequenceClassification)
+name = "huawei-noah/TinyBERT_General_4L_312D"
+tokenizer = AutoTokenizer.from_pretrained(name)
+model = AutoModelForSequenceClassification\
+  .from_pretrained(name, num_labels=2)
+# Params: 14.4M, Test Acc: 0.8566 (3 epochs)
+\end{lstlisting}
+
+\subsection{Encoder vs Decoder vs Seq2Seq}
+\zhint{编码器(BERT) vs 解码器(GPT) vs 编解码器(T5)}
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{Encoder-only} (BERT): bidirectional, strong feature extraction, not for generation
+\item \textbf{Decoder-only} (GPT): autoregressive, great for text generation, unidirectional
+\item \textbf{Seq2Seq} (T5): encoder--decoder, complex I/O, most expensive
+\end{itemize}
+
+% ==================== SECTION 6 ====================
+\section{GLUE \& SQuAD Benchmarks}
+\zhint{GLUE：9个NLP任务的标准评估基准}
+
+\textbf{GLUE} (9 tasks):
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{CoLA}: grammatical correctness (Matthews Corr.)
+\item \textbf{SST-2}: sentiment classification (Accuracy)
+\item \textbf{MRPC}: paraphrase detection (F1/Acc)
+\item \textbf{QQP}: question duplicate detection (F1/Acc)
+\item \textbf{STS-B}: semantic similarity (Pearson/Spearman)
+\item \textbf{MNLI}: natural language inference (Accuracy)
+\item \textbf{QNLI/RTE/WNLI}: inference tasks (Accuracy)
+\end{itemize}
+
+\textbf{SQuAD}: reading comprehension.\\
+v1.1: extract answer span from paragraph.\\
+v2.0: includes unanswerable questions.\\
+Metrics: Exact Match (EM) + F1 Score.
+
+% ==================== SECTION 7 ====================
+\section{Text Generation}
+\zhint{文本生成：AI生成连贯自然的文字，本质是"下一词预测"}
+
+Harder than NLP: must be coherent, different each time, output $>$ input.
+
+\subsection{Markov Chain (Non-DL)}
+\zhint{马尔可夫链：根据前一个词的概率预测下一个词}\\
+$P(X_n|X_1,...,X_{n-1}) = P(X_n|X_{n-1})$\\
+Transition matrix P: row $i$, col $j$ = $P(X_{n+1}=j|X_n=i)$.\\
+Steady state: $\pi_n = \pi_{n-1} P$ (converges if irreducible \& aperiodic).
+
+\textbf{Markovify}: Python package for text generation.\\
+\textbf{Pros}: no DL needed, fast, light on memory.\\
+\textbf{Cons}: mixes styles, no backward prediction, cannot handle polysemy/homonyms.
+
+\subsection{GPT (Decoder-only Transformer)}
+\zhint{GPT：用解码器生成类人文本，也叫大语言模型(LLM)}
+
+\begin{itemize}[leftmargin=8pt,itemsep=0pt,topsep=0pt]
+\item \textbf{GPT-1} (2018): 117M params, BooksCorpus
+\item \textbf{GPT-2} (2019): 1.5B params, WebText (45TB)
+\item \textbf{GPT-3} (2020): 175B params, few/zero-shot
+\item \textbf{GPT-4} (2023): 1.76T params, multimodal
+\end{itemize}
+
+\textbf{Why bigger}: early layers learn word order/POS; middle layers learn semantics; late layers learn high-level abstractions.
+
+\begin{lstlisting}
+from transformers import (AutoTokenizer,
+  AutoModelForCausalLM)
+model_name = "distilgpt2"
+tokenizer = AutoTokenizer.from_pretrained(
+  model_name)
+tokenizer.pad_token = tokenizer.eos_token
+model = AutoModelForCausalLM.from_pretrained(
+  model_name, dtype=torch.float32,
+  device_map="cpu")
+\end{lstlisting}
+
+\subsection{LLaMA (Meta)}
+\zhint{LLaMA：Meta开源的大语言模型系列}\\
+Free for research \& commercial use.\\
+v1 (Feb 2023) $\to$ v2 (Jul 2023) $\to$ v3 (Apr 2024) $\to$ v4 (Apr 2025).\\
+LLaMA 4 Maverick: 17B active $\times$ 128 experts $\approx$ 400B total.\\
+\textbf{Llama Stack}: unified API for inference, RAG, agents, tools, safety, evals.
+
+\keybox{
+\textbf{Model Comparison on IMDB}:\\
+Naive Bayes + TF-IDF: 0.84 | NBoW: 0.86\\
+DistilBERT Mini: 0.84 | TinyBERT: 0.86\\
+\textbf{Takeaway}: Transformers win with pre-training + fine-tuning; NBoW is a strong simple baseline.\\
+\zhint{Transformer靠预训练+微调取胜; NBoW是简单但有效的基线}
+}
+
+\end{multicols}
+\end{CJK}
+\end{document}
